@@ -1,0 +1,574 @@
+<title>Góc Học Tập Tân Quan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Patrick+Hand&display=swap">
+<style>
+/* Layout: vở ô li — nền kẻ ô mờ, thanh chọn lớp dính trên cùng, lưới môn học → trang chi tiết môn */
+:root{
+  --bg:#f6f7fb; --paper:#ffffff; --grid:rgba(44,77,170,.07);
+  --ink:#16213d; --muted:#5b6582; --line:#dfe3ef;
+  --blue:#2c4daa; --blue-soft:#e8edfb; --red:#c8342f; --red-soft:#fbe9e8;
+  --green:#1f7a4d; --green-soft:#e3f3ea; --amber:#9a6a00; --amber-soft:#fbf1d9;
+  --f-body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-hand:"Patrick Hand","Comic Sans MS",cursive;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#10141f; --paper:#171c2b; --grid:rgba(140,165,240,.06);
+  --ink:#e6e9f3; --muted:#9aa3bd; --line:#2a3147;
+  --blue:#8fa8f2; --blue-soft:#1f2946; --red:#f08b86; --red-soft:#3a1f22;
+  --green:#6fcf9c; --green-soft:#16302a; --amber:#e8bf5c; --amber-soft:#342b14; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#10141f; --paper:#171c2b; --grid:rgba(140,165,240,.06);
+  --ink:#e6e9f3; --muted:#9aa3bd; --line:#2a3147;
+  --blue:#8fa8f2; --blue-soft:#1f2946; --red:#f08b86; --red-soft:#3a1f22;
+  --green:#6fcf9c; --green-soft:#16302a; --amber:#e8bf5c; --amber-soft:#342b14; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:22px 22px;}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{text-wrap:balance;line-height:1.25;margin:0}
+a{color:var(--blue)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:6px}
+
+header.top{background:var(--paper);border-bottom:1px solid var(--line)}
+header.top .wrap{padding-block:22px 18px;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between}
+.brand small{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.brand h1{font-size:clamp(24px,4vw,32px);font-weight:800;letter-spacing:-.01em}
+.brand h1 span{color:var(--red);font-family:var(--f-hand);font-weight:400;font-size:1.1em}
+.brand p{margin:4px 0 0;color:var(--muted);font-size:13.5px;max-width:60ch}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.bar .wrap{padding-block:10px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.grades{display:flex;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:4px}
+.grade-btn{border:0;background:transparent;border-radius:9px;padding:8px 14px;cursor:pointer;text-align:left;line-height:1.2}
+.grade-btn b{display:block;font-size:15px}
+.grade-btn em{font-style:normal;font-size:11.5px;color:var(--muted)}
+.grade-btn[aria-pressed="true"]{background:var(--blue);color:#fff}
+.grade-btn[aria-pressed="true"] em{color:rgba(255,255,255,.8)}
+.search{flex:1 1 220px;min-width:0;display:flex}
+.search input{width:100%;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:10px;padding:10px 12px;font:inherit}
+
+main .wrap{padding-block:22px 48px}
+.crumb{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:var(--muted);margin-bottom:14px}
+.crumb button{border:0;background:none;color:var(--blue);cursor:pointer;padding:0;font-weight:600}
+.sec-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:14px}
+.sec-head h2{font-size:22px;font-weight:800}
+.sec-head p{margin:0;color:var(--muted);font-size:13.5px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.card{display:flex;flex-direction:column;gap:8px;text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:16px;cursor:pointer;transition:transform .12s,border-color .12s}
+.card:hover{border-color:var(--blue);transform:translateY(-2px)}
+.card .ico{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:15px;background:var(--blue-soft);color:var(--blue)}
+.card h3{font-size:16.5px;font-weight:700}
+.card .meta{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.card .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto}
+.pill{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--bg);border:1px solid var(--line);color:var(--muted)}
+.pill.exam{background:var(--red-soft);color:var(--red);border-color:transparent}
+.pill.done{background:var(--green-soft);color:var(--green);border-color:transparent}
+
+.detail{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:820px){.detail{grid-template-columns:1fr}}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px}
+.panel h3{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:10px}
+.subj-title{font-size:clamp(22px,3.4vw,28px);font-weight:800;margin-bottom:4px}
+.facts{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13.5px;margin:12px 0 0}
+.facts dt{color:var(--muted)} .facts dd{margin:0;font-weight:600}
+ol.topics{margin:0;padding-left:20px;display:grid;gap:6px;font-size:14px}
+ol.topics li::marker{color:var(--blue);font-weight:700}
+.tip{margin-top:14px;padding:12px;border-radius:10px;background:var(--amber-soft);color:var(--ink);font-size:13.5px}
+.tip b{color:var(--amber)}
+
+.ex-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--paper);border-radius:99px;padding:5px 12px;font-size:13px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.ghost{border:1px solid var(--line);background:var(--paper);border-radius:9px;padding:6px 12px;font-size:13px;cursor:pointer}
+.ex-list{display:grid;gap:12px}
+.ex{background:var(--paper);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.ex-q{padding:16px 18px 12px}
+.ex-head{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px}
+.ex-no{font-family:var(--f-hand);font-size:20px;color:var(--red);line-height:1}
+.lv{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:99px}
+.lv-1{background:var(--green-soft);color:var(--green)}
+.lv-2{background:var(--blue-soft);color:var(--blue)}
+.lv-3{background:var(--red-soft);color:var(--red)}
+.ex-topic{font-size:12px;color:var(--muted)}
+.ex-q p{margin:0}
+.ex-actions{display:flex;flex-wrap:wrap;gap:8px;padding:0 18px 14px}
+.show{border:0;background:var(--blue);color:#fff;border-radius:9px;padding:7px 14px;font-weight:600;font-size:13.5px;cursor:pointer}
+.mark{border:1px solid var(--line);background:transparent;border-radius:9px;padding:7px 12px;font-size:13.5px;cursor:pointer}
+.mark[aria-pressed="true"]{background:var(--green-soft);color:var(--green);border-color:transparent;font-weight:600}
+.sol{border-top:1px dashed var(--line);padding:14px 18px 16px 22px;background:
+  linear-gradient(90deg,transparent 14px,var(--red-soft) 14px,var(--red-soft) 15px,transparent 15px),var(--bg)}
+.sol .lbl{font-family:var(--f-hand);font-size:19px;color:var(--blue);margin-bottom:4px}
+.sol p{margin:0 0 6px} .sol ul,.sol ol{margin:4px 0 6px;padding-left:20px}
+.ans{display:inline-block;margin-top:4px;padding:3px 10px;border-radius:8px;background:var(--green-soft);color:var(--green);font-weight:700}
+.math{font-variant-numeric:tabular-nums;white-space:nowrap}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.9em;line-height:1.1;margin:0 2px}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 2px}
+.empty{padding:28px;text-align:center;color:var(--muted);background:var(--paper);border:1px dashed var(--line);border-radius:14px}
+
+.src{margin-top:28px;font-size:13px;color:var(--muted)}
+.src h3{font-size:13px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;color:var(--muted)}
+.src ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.progress{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <small>Trường Tiểu học &amp; THCS Tân Quan · Tỉnh Đồng Nai</small>
+      <h1>Góc Học Tập <span>Tân Quan</span></h1>
+      <p>Toàn bộ môn học lớp 5 và lớp 9 theo Chương trình GDPT 2018, kèm chủ đề trọng tâm và bài tập có lời giải chi tiết.</p>
+    </div>
+    <div class="progress" id="progress"></div>
+  </div>
+</header>
+
+<div class="bar">
+  <div class="wrap">
+    <div class="grades" role="group" aria-label="Chọn lớp">
+      <button class="grade-btn" id="g5" data-grade="5" aria-pressed="false"><b>Lớp 5</b><em>Tiểu học Tân Quan</em></button>
+      <button class="grade-btn" id="g9" data-grade="9" aria-pressed="false"><b>Lớp 9</b><em>THCS Tân Quan</em></button>
+    </div>
+    <label class="search" for="q"><input id="q" type="search" placeholder="Tìm môn, chủ đề hoặc bài tập…" autocomplete="off"></label>
+  </div>
+</div>
+
+<main><div class="wrap" id="view"></div></main>
+
+<script>
+/* ============================ DỮ LIỆU ============================ */
+const F=(a,b)=>`<span class="frac"><span>${a}</span><span>${b}</span></span>`;
+const DATA={
+"5":{school:"Trường Tiểu học Tân Quan",note:"Lớp 5 học theo CT GDPT 2018 từ năm học 2024–2025. Đánh giá theo Thông tư 27/2020/TT-BGDĐT (nhận xét + điểm số cuối kì với Tiếng Việt, Toán, Ngoại ngữ, Khoa học, LS&ĐL, Tin học và Công nghệ).",
+subjects:[
+{id:"toan",ico:"Σ",name:"Toán",periods:175,week:5,score:true,
+ topics:["Ôn tập và bổ sung: phân số, hỗn số","Số thập phân; so sánh, làm tròn","Các phép tính với số thập phân","Hình tam giác, hình thang, hình tròn; chu vi, diện tích","Tỉ số, tỉ số phần trăm và các bài toán liên quan","Thể tích; xăng-ti-mét khối, đề-xi-mét khối, mét khối","Diện tích xung quanh, toàn phần, thể tích hình hộp chữ nhật và hình lập phương","Số đo thời gian; vận tốc, quãng đường, thời gian (chuyển động đều)","Thống kê, biểu đồ hình quạt tròn; tỉ số mô tả khả năng xảy ra"],
+ tip:"<b>Mẹo:</b> Bài toán có lời văn luôn làm 3 bước: tóm tắt → chọn phép tính → viết câu trả lời có đơn vị.",
+ ex:[
+ {t:"Số thập phân",lv:1,q:"Đặt tính rồi tính: a) 12,5 + 7,38 &nbsp; b) 4,5 × 2,4 &nbsp; c) 9,6 : 3,2",
+  a:"<p>a) Viết các chữ số cùng hàng thẳng cột, dấu phẩy thẳng dấu phẩy: 12,50 + 7,38 = <b>19,88</b>.</p><p>b) Nhân như số tự nhiên: 45 × 24 = 1080. Hai thừa số có tổng cộng 2 chữ số ở phần thập phân → tách 2 chữ số: <b>10,80 = 10,8</b>.</p><p>c) Chuyển dấu phẩy ở số chia và số bị chia sang phải 1 chữ số: 96 : 32 = <b>3</b>.</p>"},
+ {t:"Diện tích hình thang",lv:1,q:"Một mảnh vườn hình thang có đáy lớn 12 m, đáy bé 8 m, chiều cao 5 m. Tính diện tích mảnh vườn.",
+  a:"<p>Diện tích hình thang = (đáy lớn + đáy bé) × chiều cao : 2</p><p class='math'>(12 + 8) × 5 : 2 = 20 × 5 : 2 = 50 (m²)</p><span class='ans'>Đáp số: 50 m²</span>"},
+ {t:"Hình tròn",lv:2,q:"Một bồn hoa hình tròn có bán kính 5 m. Tính chu vi và diện tích bồn hoa.",
+  a:"<p>Chu vi: C = r × 2 × 3,14 = 5 × 2 × 3,14 = <b>31,4 m</b></p><p>Diện tích: S = r × r × 3,14 = 5 × 5 × 3,14 = <b>78,5 m²</b></p><span class='ans'>Đáp số: 31,4 m; 78,5 m²</span>"},
+ {t:"Tỉ số phần trăm",lv:2,q:"Lớp 5A có 40 học sinh, trong đó có 18 học sinh nữ. Hỏi số học sinh nữ chiếm bao nhiêu phần trăm số học sinh cả lớp?",
+  a:"<p>Tỉ số phần trăm = 18 : 40 = 0,45 = <b>45%</b></p><span class='ans'>Đáp số: 45%</span>"},
+ {t:"Tổng – tỉ",lv:2,q:"Tổng của hai số là 72. Tỉ số của hai số là "+F(3,5)+". Tìm hai số đó.",
+  a:"<p>Tổng số phần bằng nhau: 3 + 5 = 8 (phần)</p><p>Giá trị một phần: 72 : 8 = 9</p><p>Số bé: 9 × 3 = 27; Số lớn: 9 × 5 = 45 (hoặc 72 − 27 = 45)</p><span class='ans'>Đáp số: 27 và 45</span>"},
+ {t:"Hình hộp chữ nhật",lv:2,q:"Một hình hộp chữ nhật có chiều dài 5 dm, chiều rộng 4 dm, chiều cao 3 dm. Tính diện tích xung quanh, diện tích toàn phần và thể tích.",
+  a:"<p>Chu vi đáy: (5 + 4) × 2 = 18 (dm)</p><p>S<sub>xq</sub> = 18 × 3 = <b>54 dm²</b></p><p>Diện tích một đáy: 5 × 4 = 20 (dm²) → S<sub>tp</sub> = 54 + 20 × 2 = <b>94 dm²</b></p><p>Thể tích: V = 5 × 4 × 3 = <b>60 dm³</b></p>"},
+ {t:"Chuyển động đều",lv:3,q:"Một ô tô đi quãng đường 135 km hết 2 giờ 30 phút. Tính vận tốc ô tô. Nếu giữ nguyên vận tốc đó thì đi 189 km hết bao lâu?",
+  a:"<p>Đổi 2 giờ 30 phút = 2,5 giờ.</p><p>Vận tốc: v = s : t = 135 : 2,5 = <b>54 km/giờ</b></p><p>Thời gian đi 189 km: t = 189 : 54 = 3,5 giờ = <b>3 giờ 30 phút</b></p>"},
+ {t:"Thống kê",lv:3,q:"Trong hộp có 3 bi đỏ, 5 bi xanh, 2 bi vàng. Lấy ngẫu nhiên 1 viên. Viết tỉ số mô tả khả năng lấy được bi xanh.",
+  a:"<p>Tổng số bi: 3 + 5 + 2 = 10.</p><p>Khả năng lấy được bi xanh là 5 trên 10, tức "+F(5,10)+" = "+F(1,2)+".</p>"}
+ ]},
+{id:"tiengviet",ico:"Aa",name:"Tiếng Việt",periods:245,week:7,score:true,
+ topics:["Đọc: truyện, thơ, văn bản miêu tả, văn bản thông tin","Từ đồng nghĩa, từ đa nghĩa","Đại từ, kết từ","Câu ghép; cách nối các vế câu ghép","Liên kết câu (lặp từ, thay thế từ, từ nối)","Dấu gạch ngang, dấu gạch nối","Viết: bài văn tả người, tả phong cảnh","Viết: đoạn văn nêu ý kiến, bài văn kể chuyện sáng tạo","Viết báo cáo công việc, chương trình hoạt động"],
+ tip:"<b>Mẹo:</b> Đọc to đoạn văn đã viết một lần. Câu nào đọc bị vấp thường là câu thiếu chủ ngữ hoặc quá dài.",
+ ex:[
+ {t:"Từ đồng nghĩa",lv:1,q:"Tìm 3 từ đồng nghĩa với từ “chăm chỉ” và đặt câu với một từ vừa tìm được.",
+  a:"<p>Từ đồng nghĩa: <b>siêng năng, cần cù, chịu khó</b> (cũng có thể: chuyên cần).</p><p>Đặt câu: <i>Bạn Lan rất siêng năng, ngày nào cũng tự giác ôn bài.</i></p>"},
+ {t:"Từ đa nghĩa",lv:2,q:"Từ “chân” trong các câu sau mang nghĩa gốc hay nghĩa chuyển?<br>a) Bé ngã nên bị đau chân. &nbsp; b) Cái chân bàn bị gãy. &nbsp; c) Nhà em ở dưới chân núi.",
+  a:"<ul><li>a) <b>Nghĩa gốc</b>: bộ phận cơ thể người dùng để đi, đứng.</li><li>b) <b>Nghĩa chuyển</b>: bộ phận dưới cùng, đỡ các đồ vật.</li><li>c) <b>Nghĩa chuyển</b>: phần dưới cùng, tiếp giáp mặt đất của núi.</li></ul>"},
+ {t:"Câu ghép",lv:2,q:"Xác định các vế và cách nối trong câu ghép: “Mặt trời lên cao, sương tan dần, cánh đồng sáng rực.”",
+  a:"<p>Câu có 3 vế, mỗi vế có đủ chủ ngữ – vị ngữ:</p><ul><li>Mặt trời (CN) / lên cao (VN)</li><li>sương (CN) / tan dần (VN)</li><li>cánh đồng (CN) / sáng rực (VN)</li></ul><p>Các vế được nối trực tiếp bằng <b>dấu phẩy</b>.</p>"},
+ {t:"Kết từ",lv:1,q:"Điền kết từ thích hợp (vì, nên, nhưng, và): “___ trời mưa to ___ buổi tập văn nghệ phải hoãn lại.”",
+  a:"<p><i><b>Vì</b> trời mưa to <b>nên</b> buổi tập văn nghệ phải hoãn lại.</i></p><p>Cặp kết từ “vì… nên…” chỉ quan hệ nguyên nhân – kết quả.</p>"},
+ {t:"Liên kết câu",lv:2,q:"Chỉ ra cách liên kết câu: “Bác Hồ rất yêu thiếu nhi. Người luôn dành cho các cháu những tình cảm ấm áp nhất.”",
+  a:"<p>Từ <b>“Người”</b> ở câu 2 thay thế cho <b>“Bác Hồ”</b> ở câu 1 → liên kết bằng <b>phép thay thế từ ngữ</b>.</p>"},
+ {t:"Tập làm văn",lv:3,q:"Lập dàn ý bài văn tả cô giáo (hoặc thầy giáo) đã dạy em.",
+  a:"<ol><li><b>Mở bài:</b> Giới thiệu thầy/cô (tên, dạy lớp mấy, ấn tượng chung).</li><li><b>Thân bài:</b><ul><li>Tả ngoại hình: dáng người, khuôn mặt, đôi mắt, giọng nói, trang phục khi lên lớp.</li><li>Tả hoạt động, tính tình: lúc giảng bài, khi chấm bài, khi học sinh mắc lỗi, khi lớp đạt thành tích.</li><li>Kỉ niệm đáng nhớ của em với thầy/cô.</li></ul></li><li><b>Kết bài:</b> Tình cảm của em; lời hứa học tập tốt.</li></ol><p>Chú ý: dùng từ gợi tả, hình ảnh so sánh; mỗi ý thân bài là một đoạn.</p>"}
+ ]},
+{id:"tienganh",ico:"En",name:"Tiếng Anh",periods:140,week:4,score:true,
+ topics:["All about me; Our homes; My foreign friends","Free-time activities; My future job","School rooms, school activities, classroom","Outdoor activities; School trip","Family time; Tet holiday; Special days","Staying healthy; Our health","Seasons and the weather","Stories for children; Means of transport","Places of interest; Summer holidays"],
+ tip:"<b>Mẹo:</b> Học từ theo cụm (go swimming, ride a bike) dễ nhớ hơn học từ đơn lẻ.",
+ ex:[
+ {t:"Free time",lv:1,q:"Complete: “What do you do ___ your free time?” – “I ___ (watch) cartoons.”",
+  a:"<p>What do you do <b>in</b> your free time? – I <b>watch</b> cartoons.</p><p>Thì hiện tại đơn, chủ ngữ “I” → động từ giữ nguyên.</p>"},
+ {t:"Future job",lv:1,q:"Answer: “What would you like to be in the future?” (teacher)",
+  a:"<p><b>I'd like to be a teacher.</b> (I'd = I would)</p><p>Có thể nói thêm lí do: <i>Because I want to help children learn.</i></p>"},
+ {t:"Past simple",lv:2,q:"Put the verbs in the past simple: “Last summer, we (go) ___ to Vung Tau. We (swim) ___ in the sea.”",
+  a:"<p>Last summer, we <b>went</b> to Vung Tau. We <b>swam</b> in the sea.</p><p>go → went, swim → swam là động từ bất quy tắc.</p>"},
+ {t:"Health",lv:2,q:"Choose the correct word: “You should / shouldn't eat too many sweets.”",
+  a:"<p>You <b>shouldn't</b> eat too many sweets. (Không nên ăn quá nhiều đồ ngọt.)</p>"}
+ ]},
+{id:"khoahoc",ico:"⚗",name:"Khoa học",periods:70,week:2,score:true,
+ topics:["Chất: đất, hỗn hợp và dung dịch","Sự biến đổi trạng thái và biến đổi hóa học của chất","Năng lượng mặt trời, gió, nước chảy","Năng lượng điện; mạch điện đơn giản; vật dẫn điện, vật cách điện","Sử dụng năng lượng tiết kiệm, an toàn","Sự sinh sản ở thực vật và động vật","Vi khuẩn có ích và gây hại","Sự sinh sản và phát triển ở người; tuổi dậy thì","Phòng tránh bị xâm hại; chăm sóc sức khỏe","Sinh vật và môi trường"],
+ tip:"<b>Mẹo:</b> Phân biệt nhanh: biến đổi có tạo ra chất mới → biến đổi hóa học; chỉ đổi hình dạng, trạng thái → biến đổi lí học.",
+ ex:[
+ {t:"Hỗn hợp – dung dịch",lv:1,q:"Trong các trường hợp sau, trường hợp nào là hỗn hợp, trường hợp nào là dung dịch: cát trộn nước; muối hòa tan trong nước; đường hòa tan trong nước; gạo lẫn sạn.",
+  a:"<ul><li><b>Hỗn hợp:</b> cát trộn nước, gạo lẫn sạn (vẫn nhìn thấy, tách được từng chất).</li><li><b>Dung dịch:</b> nước muối, nước đường (chất tan hòa đều, không nhìn thấy riêng).</li></ul>"},
+ {t:"Tách chất",lv:2,q:"Làm thế nào để lấy lại muối từ nước muối?",
+  a:"<p>Đun sôi hoặc phơi nắng nước muối cho <b>nước bay hơi hết</b>, muối còn lại ở đáy. Đây là cách làm muối của diêm dân ven biển.</p>"},
+ {t:"Biến đổi của chất",lv:2,q:"Hiện tượng nào là biến đổi hóa học: a) Nước đá tan; b) Đốt tờ giấy; c) Đinh sắt để lâu bị gỉ; d) Xé nhỏ tờ giấy.",
+  a:"<p><b>b) và c)</b> là biến đổi hóa học vì tạo ra chất mới (tro, khói; gỉ sắt).</p><p>a) và d) là biến đổi lí học: chất không đổi, chỉ đổi trạng thái hoặc hình dạng.</p>"},
+ {t:"Năng lượng điện",lv:1,q:"Kể 3 vật dẫn điện và 3 vật cách điện thường gặp. Vì sao dây điện có lõi đồng bọc nhựa?",
+  a:"<p>Dẫn điện: <b>đồng, nhôm, sắt</b>. Cách điện: <b>nhựa, cao su, gỗ khô</b>.</p><p>Lõi đồng để dẫn điện tốt; vỏ nhựa cách điện, giúp người dùng không bị điện giật.</p>"},
+ {t:"Tiết kiệm năng lượng",lv:3,q:"Nêu 4 việc em có thể làm ở nhà để tiết kiệm điện.",
+  a:"<ul><li>Tắt đèn, quạt, ti vi khi ra khỏi phòng.</li><li>Tận dụng ánh sáng và gió tự nhiên.</li><li>Không mở tủ lạnh lâu hoặc nhiều lần.</li><li>Rút sạc khi pin đã đầy; dùng bóng đèn LED.</li></ul>"}
+ ]},
+{id:"lsdl",ico:"⌖",name:"Lịch sử và Địa lí",periods:70,week:2,score:true,
+ topics:["Vị trí địa lí, lãnh thổ, biển đảo Việt Nam","Dân cư, các dân tộc Việt Nam","Những quốc gia đầu tiên: Văn Lang – Âu Lạc, Phù Nam, Champa","Xây dựng và bảo vệ Tổ quốc qua các triều đại","Cách mạng tháng Tám 1945; Chiến thắng Điện Biên Phủ 1954","Chiến dịch Hồ Chí Minh; thống nhất đất nước 1975","Các nước láng giềng: Trung Quốc, Lào, Cam-pu-chia","Hiệp hội các quốc gia Đông Nam Á (ASEAN)","Các châu lục, đại dương; một số nền văn minh","Xây dựng thế giới xanh – sạch – đẹp"],
+ tip:"<b>Mẹo:</b> Làm “thước thời gian” dán bàn học: ghi mỗi mốc lịch sử kèm 1 hình ảnh gợi nhớ.",
+ ex:[
+ {t:"Lãnh thổ Việt Nam",lv:1,q:"Phần đất liền nước ta giáp với những quốc gia nào? Phía đông và nam giáp gì?",
+  a:"<p>Phía bắc giáp <b>Trung Quốc</b>; phía tây giáp <b>Lào</b> và <b>Cam-pu-chia</b>; phía đông và phía nam giáp <b>Biển Đông</b>.</p>"},
+ {t:"Mốc lịch sử",lv:1,q:"Nối sự kiện với thời gian: Cách mạng tháng Tám thành công; Bác Hồ đọc Tuyên ngôn Độc lập; Chiến thắng Điện Biên Phủ; Giải phóng miền Nam.",
+  a:"<ul><li>Cách mạng tháng Tám thành công: <b>tháng 8/1945</b> (Hà Nội 19/8/1945).</li><li>Tuyên ngôn Độc lập: <b>2/9/1945</b>, Quảng trường Ba Đình.</li><li>Chiến thắng Điện Biên Phủ: <b>7/5/1954</b>.</li><li>Giải phóng miền Nam, thống nhất đất nước: <b>30/4/1975</b>.</li></ul>"},
+ {t:"Ý nghĩa lịch sử",lv:2,q:"Nêu ý nghĩa của Chiến thắng Điện Biên Phủ năm 1954.",
+  a:"<ul><li>Đập tan kế hoạch quân sự của thực dân Pháp, buộc Pháp kí Hiệp định Giơ-ne-vơ, chấm dứt chiến tranh ở Đông Dương.</li><li>Miền Bắc được hoàn toàn giải phóng.</li><li>Cổ vũ phong trào đấu tranh giải phóng dân tộc trên thế giới.</li></ul>"},
+ {t:"Địa phương",lv:3,q:"Quê em thuộc vùng Đông Nam Bộ. Kể tên 3 loại cây công nghiệp nổi bật của vùng và lợi ích của chúng.",
+  a:"<p><b>Cao su, điều, hồ tiêu</b> (ngoài ra có cà phê). Khu vực Bình Phước cũ, nay thuộc tỉnh Đồng Nai, là vùng trồng điều lớn của cả nước.</p><p>Lợi ích: cung cấp nguyên liệu cho chế biến, xuất khẩu, tạo việc làm và tăng thu nhập cho người dân.</p>"}
+ ]},
+{id:"daoduc",ico:"♡",name:"Đạo đức",periods:35,week:1,score:false,
+ topics:["Biết ơn những người có công với quê hương, đất nước","Tôn trọng sự khác biệt của người khác","Vượt qua khó khăn","Bảo vệ cái đúng, cái tốt","Bảo vệ môi trường sống","Lập kế hoạch cá nhân","Phòng, tránh xâm hại","Sử dụng tiền hợp lí"],
+ tip:"<b>Mẹo:</b> Với bài xử lí tình huống: nêu việc nên làm, giải thích vì sao, và nói em sẽ nói gì với bạn.",
+ ex:[
+ {t:"Tôn trọng sự khác biệt",lv:1,q:"Lớp em có bạn mới chuyển đến, nói giọng khác vùng nên vài bạn trêu chọc. Em sẽ làm gì?",
+  a:"<p>Em nhắc các bạn không nên trêu vì giọng nói mỗi vùng miền là khác biệt bình thường, cần tôn trọng. Em chủ động làm quen, rủ bạn mới cùng chơi, giới thiệu bạn với cả lớp. Nếu các bạn vẫn trêu, em báo cô giáo chủ nhiệm.</p>"},
+ {t:"Sử dụng tiền hợp lí",lv:2,q:"Mỗi tuần em được cho 50 000 đồng. Hãy lập kế hoạch chi tiêu hợp lí.",
+  a:"<p>Gợi ý chia: <b>20 000 đ</b> ăn sáng/đồ dùng cần thiết; <b>20 000 đ</b> tiết kiệm (bỏ ống heo); <b>10 000 đ</b> dự phòng hoặc góp quỹ giúp bạn khó khăn.</p><p>Nguyên tắc: cái cần trước, cái muốn sau; ghi lại mỗi khoản đã chi.</p>"},
+ {t:"Phòng tránh xâm hại",lv:2,q:"Một người lạ rủ em lên xe để “đưa về nhà”. Em cần làm gì?",
+  a:"<p><b>Từ chối dứt khoát</b>, không đi theo; đi nhanh đến chỗ đông người hoặc chỗ có người lớn tin cậy (bảo vệ trường, thầy cô); kể lại ngay với bố mẹ. Số điện thoại Tổng đài quốc gia bảo vệ trẻ em: <b>111</b>.</p>"}
+ ]},
+{id:"tinhoc",ico:"⌨",name:"Tin học",periods:35,week:1,score:true,
+ topics:["Máy tính và em; sử dụng thiết bị an toàn","Tìm kiếm thông tin trên Internet","Tổ chức lưu trữ thông tin trong máy tính (thư mục, tệp)","Bản quyền, sử dụng thông tin hợp pháp","Soạn thảo văn bản: chèn ảnh, bảng","Lập trình trực quan Scratch: lặp, rẽ nhánh, biến"],
+ tip:"<b>Mẹo:</b> Đặt tên tệp rõ ràng: <i>Toan_Bai5_ThangMuoi</i> thay vì <i>abc</i>.",
+ ex:[
+ {t:"Tìm kiếm",lv:1,q:"Em muốn tìm thông tin về “Vườn quốc gia Bù Gia Mập”. Nên gõ từ khóa thế nào để kết quả chính xác?",
+  a:"<p>Gõ cụm từ trong dấu ngoặc kép: <b>\"Vườn quốc gia Bù Gia Mập\"</b> để máy tìm đúng cả cụm. Có thể thêm từ “diện tích” hoặc “động vật” để thu hẹp kết quả. Ưu tiên trang có đuôi .gov.vn hoặc báo chính thống.</p>"},
+ {t:"Thư mục",lv:2,q:"Hãy vẽ cây thư mục để sắp xếp bài tập: thư mục HocTap gồm Toan, TiengViet; trong Toan có HKI, HKII.",
+  a:"<pre style='margin:0;font:13px ui-monospace,monospace'>HocTap\n├── Toan\n│   ├── HKI\n│   └── HKII\n└── TiengViet</pre>"},
+ {t:"Scratch",lv:3,q:"Trong Scratch, viết chương trình cho mèo đi 10 bước, lặp lại mãi mãi; nếu chạm cạnh thì bật lại.",
+  a:"<ol><li>Khi bấm lá cờ xanh</li><li>Liên tục (forever):<ul><li>di chuyển 10 bước</li><li>nếu chạm vào cạnh, bật lại</li></ul></li></ol><p>Khối “liên tục” là <b>cấu trúc lặp</b>; “nếu chạm cạnh” là <b>điều kiện</b>.</p>"}
+ ]},
+{id:"congnghe",ico:"⚙",name:"Công nghệ",periods:35,week:1,score:true,
+ topics:["Vai trò của công nghệ trong đời sống","Nhà sáng chế và sản phẩm sáng chế","Tìm hiểu thiết kế; các bước thiết kế sản phẩm","Sử dụng điện thoại an toàn, hiệu quả","Sử dụng tủ lạnh đúng cách","Lắp ráp mô hình điện mặt trời / máy phát điện gió","Làm đồ chơi đơn giản"],
+ tip:"<b>Mẹo:</b> Trước khi làm sản phẩm, vẽ phác thảo và liệt kê vật liệu cần chuẩn bị.",
+ ex:[
+ {t:"Thiết kế",lv:1,q:"Nêu các bước cơ bản để thiết kế một sản phẩm (ví dụ: hộp đựng bút).",
+  a:"<ol><li>Xác định mục đích, yêu cầu sản phẩm.</li><li>Phác thảo ý tưởng (vẽ hình, ghi kích thước).</li><li>Chọn vật liệu, dụng cụ.</li><li>Làm sản phẩm mẫu.</li><li>Kiểm tra, đánh giá và hoàn thiện.</li></ol>"},
+ {t:"Tủ lạnh",lv:2,q:"Nêu 3 lưu ý khi sử dụng tủ lạnh trong gia đình.",
+  a:"<ul><li>Không cho thức ăn còn nóng vào tủ.</li><li>Đóng kín cửa tủ, không mở quá lâu.</li><li>Bọc kín thực phẩm, để đúng ngăn; vệ sinh tủ định kì.</li></ul>"}
+ ]},
+{id:"amnhac",ico:"♪",name:"Âm nhạc",periods:35,week:1,score:false,
+ topics:["Hát: bài hát thiếu nhi, dân ca Việt Nam","Nghe nhạc, thường thức âm nhạc","Đọc nhạc: tên nốt, trường độ, nhịp 2/4, 3/4","Nhạc cụ: gõ đệm, sáo recorder hoặc kèn phím"],
+ tip:"<b>Mẹo:</b> Vừa hát vừa vỗ tay theo phách giúp giữ nhịp chính xác.",
+ ex:[
+ {t:"Nhịp",lv:1,q:"Nhịp 3/4 nghĩa là gì? Cách đánh nhịp như thế nào?",
+  a:"<p>Mỗi ô nhịp có <b>3 phách</b>, mỗi phách bằng một nốt đen. Phách 1 mạnh, phách 2 và 3 nhẹ: <b>mạnh – nhẹ – nhẹ</b>.</p>"},
+ {t:"Trường độ",lv:2,q:"Một nốt trắng bằng bao nhiêu nốt đen? Một nốt đen bằng bao nhiêu nốt móc đơn?",
+  a:"<p>1 nốt trắng = <b>2 nốt đen</b>; 1 nốt đen = <b>2 nốt móc đơn</b>.</p>"}
+ ]},
+{id:"mythuat",ico:"✎",name:"Mĩ thuật",periods:35,week:1,score:false,
+ topics:["Màu sắc: màu nóng, màu lạnh, đậm nhạt","Hình, khối, không gian trong tranh","Vẽ tranh đề tài: trường em, lễ hội, quê hương","Tạo hình 3D từ vật liệu tái chế","Thưởng thức tác phẩm mĩ thuật"],
+ tip:"<b>Mẹo:</b> Vẽ hình chính to, rõ ở giữa tranh trước, rồi mới vẽ cảnh phụ.",
+ ex:[
+ {t:"Màu sắc",lv:1,q:"Kể 3 màu nóng và 3 màu lạnh. Tranh lễ hội nên dùng gam màu nào?",
+  a:"<p>Màu nóng: <b>đỏ, cam, vàng</b>. Màu lạnh: <b>xanh lam, xanh lục, tím</b>.</p><p>Tranh lễ hội nên dùng gam <b>màu nóng</b> để tạo cảm giác vui tươi, rộn ràng.</p>"}
+ ]},
+{id:"gdtc",ico:"⚑",name:"Giáo dục thể chất",periods:70,week:2,score:false,
+ topics:["Đội hình đội ngũ","Bài tập thể dục","Tư thế và kĩ năng vận động cơ bản: chạy, nhảy, ném","Thể thao tự chọn: bóng đá, bóng rổ, cầu lông, cờ vua, bơi…","Vệ sinh cá nhân khi tập luyện"],
+ tip:"<b>Mẹo:</b> Luôn khởi động khớp 5–7 phút trước khi tập để tránh chấn thương.",
+ ex:[
+ {t:"An toàn",lv:1,q:"Vì sao phải khởi động trước khi tập luyện?",
+  a:"<p>Khởi động làm nóng cơ, tăng độ dẻo của khớp, tim phổi thích nghi dần với vận động → <b>tránh chấn thương</b> (bong gân, chuột rút) và tập hiệu quả hơn.</p>"}
+ ]},
+{id:"hdtn",ico:"★",name:"Hoạt động trải nghiệm",periods:105,week:3,score:false,
+ topics:["Em với nhà trường: truyền thống trường, tình bạn","Khám phá bản thân: sở thích, điểm mạnh","Trách nhiệm với gia đình","Hoạt động cộng đồng; bảo vệ môi trường","Tìm hiểu nghề nghiệp xung quanh em"],
+ tip:"<b>Mẹo:</b> Ghi nhật kí trải nghiệm ngắn sau mỗi hoạt động: em làm gì, học được gì.",
+ ex:[
+ {t:"Khám phá bản thân",lv:1,q:"Viết 3 điểm mạnh của em và 1 điều em muốn cải thiện trong học kì này.",
+  a:"<p>Gợi ý: <i>Điểm mạnh: vẽ đẹp, tính toán nhanh, hòa đồng. Muốn cải thiện: viết chữ cẩn thận hơn.</i></p><p>Kế hoạch: mỗi tối luyện viết 1 trang, nhờ bố mẹ kiểm tra cuối tuần.</p>"}
+ ]}
+]},
+
+"9":{school:"Trường THCS Tân Quan",note:"Lớp 9 học theo CT GDPT 2018 từ năm học 2024–2025. Đánh giá theo Thông tư 22/2021/TT-BGDĐT. Kì thi tuyển sinh vào lớp 10 tại Đồng Nai những năm gần đây thi 3 môn: Toán, Ngữ văn, Tiếng Anh. Kiểm tra lại thông báo chính thức của Sở GD&ĐT mỗi năm.",
+subjects:[
+{id:"toan",ico:"Σ",name:"Toán",periods:140,week:4,exam:true,
+ topics:["Phương trình và hệ hai phương trình bậc nhất hai ẩn","Phương trình và bất phương trình bậc nhất một ẩn","Căn bậc hai và căn bậc ba","Hệ thức lượng trong tam giác vuông","Đường tròn; vị trí tương đối; tiếp tuyến","Hàm số y = ax² (a ≠ 0); phương trình bậc hai một ẩn; định lí Viète","Tần số và tần số tương đối","Xác suất của biến cố trong một số mô hình đơn giản","Đường tròn ngoại tiếp, nội tiếp; tứ giác nội tiếp; đa giác đều","Hình trụ, hình nón, hình cầu"],
+ tip:"<b>Ôn thi vào 10:</b> Chắc 4 dạng: rút gọn biểu thức chứa căn, giải hệ/phương trình bậc hai và Viète, bài toán thực tế lập phương trình, hình học đường tròn.",
+ ex:[
+ {t:"Hệ phương trình",lv:1,q:"Giải hệ phương trình: x + y = 5 và 2x − y = 1.",
+  a:"<p>Cộng vế theo vế hai phương trình: 3x = 6 ⇒ <b>x = 2</b>.</p><p>Thay vào x + y = 5 ⇒ y = 3.</p><span class='ans'>Nghiệm (x; y) = (2; 3)</span>"},
+ {t:"Căn bậc hai",lv:1,q:"Rút gọn: A = √12 + √27 − √48.",
+  a:"<p>√12 = 2√3; √27 = 3√3; √48 = 4√3.</p><p class='math'>A = 2√3 + 3√3 − 4√3 = √3</p><span class='ans'>A = √3</span>"},
+ {t:"Căn bậc hai",lv:2,q:"Rút gọn B = "+F("√x","√x − 1")+" − "+F("1","√x + 1")+" − "+F("2","x − 1")+" với x ≥ 0, x ≠ 1.",
+  a:"<p>Mẫu chung: x − 1 = (√x − 1)(√x + 1).</p><p class='math'>B = "+F("√x(√x + 1) − (√x − 1) − 2","x − 1")+" = "+F("x + √x − √x + 1 − 2","x − 1")+" = "+F("x − 1","x − 1")+"</p><span class='ans'>B = 1</span>"},
+ {t:"Phương trình bậc hai",lv:1,q:"Giải phương trình x² − 5x + 6 = 0.",
+  a:"<p>a = 1, b = −5, c = 6. Δ = b² − 4ac = 25 − 24 = 1 > 0, √Δ = 1.</p><p>x₁ = "+F("5 + 1","2")+" = 3; x₂ = "+F("5 − 1","2")+" = 2.</p><span class='ans'>S = {2; 3}</span>"},
+ {t:"Định lí Viète",lv:2,q:"Cho phương trình x² − 7x + 3 = 0 có hai nghiệm x₁, x₂. Không giải phương trình, tính x₁² + x₂².",
+  a:"<p>Δ = 49 − 12 = 37 > 0 nên phương trình có 2 nghiệm phân biệt.</p><p>Theo Viète: x₁ + x₂ = 7; x₁x₂ = 3.</p><p class='math'>x₁² + x₂² = (x₁ + x₂)² − 2x₁x₂ = 49 − 6 = 43</p><span class='ans'>43</span>"},
+ {t:"Bất phương trình",lv:1,q:"Giải bất phương trình 3x − 5 > 7.",
+  a:"<p>3x > 12 ⇒ x > 4.</p><span class='ans'>Nghiệm: x > 4</span>"},
+ {t:"Bài toán thực tế",lv:3,q:"Một mảnh đất hình chữ nhật có chu vi 56 m. Nếu tăng chiều rộng 4 m và giảm chiều dài 4 m thì diện tích tăng 8 m². Tính kích thước mảnh đất.",
+  a:"<p>Gọi chiều dài x (m), chiều rộng y (m), x > y > 0, x > 4. Ta có x + y = 28.</p><p>Diện tích mới: (x − 4)(y + 4) = xy + 8 ⇒ 4x − 4y − 16 = 8 ⇒ x − y = 6.</p><p>Giải hệ: x = 17, y = 11 (thỏa mãn).</p><span class='ans'>Dài 17 m, rộng 11 m</span>"},
+ {t:"Hệ thức lượng",lv:2,q:"Cho tam giác ABC vuông tại A, AB = 6 cm, AC = 8 cm, đường cao AH. Tính BC, AH và sin B.",
+  a:"<p>Pythagore: BC = √(6² + 8²) = √100 = <b>10 cm</b>.</p><p>AH · BC = AB · AC ⇒ AH = "+F("6 · 8","10")+" = <b>4,8 cm</b>.</p><p>sin B = "+F("AC","BC")+" = "+F("8","10")+" = <b>0,8</b>.</p>"},
+ {t:"Xác suất",lv:2,q:"Gieo đồng thời hai con xúc xắc cân đối. Tính xác suất để tổng số chấm bằng 7.",
+  a:"<p>Không gian mẫu có 6 · 6 = 36 kết quả đồng khả năng.</p><p>Kết quả thuận lợi: (1;6), (2;5), (3;4), (4;3), (5;2), (6;1) → 6 kết quả.</p><span class='ans'>P = 6/36 = 1/6</span>"},
+ {t:"Hình trụ",lv:1,q:"Một lon nước hình trụ có bán kính đáy 3 cm, chiều cao 10 cm. Tính thể tích (π ≈ 3,14).",
+  a:"<p class='math'>V = πr²h = π · 3² · 10 = 90π ≈ 282,6 (cm³)</p><span class='ans'>≈ 282,6 cm³</span>"},
+ {t:"Đường tròn",lv:3,q:"Cho đường tròn (O), điểm A nằm ngoài. Kẻ hai tiếp tuyến AB, AC (B, C là tiếp điểm). Chứng minh tứ giác ABOC nội tiếp.",
+  a:"<p>AB là tiếp tuyến tại B ⇒ OB ⊥ AB ⇒ ∠ABO = 90°.</p><p>Tương tự ∠ACO = 90°.</p><p>Tứ giác ABOC có ∠ABO + ∠ACO = 180° (hai góc đối) ⇒ <b>ABOC nội tiếp</b> đường tròn đường kính AO.</p>"}
+ ]},
+{id:"nguvan",ico:"✒",name:"Ngữ văn",periods:140,week:4,exam:true,
+ topics:["Truyện truyền kì (Chuyện người con gái Nam Xương – Nguyễn Dữ)","Thơ song thất lục bát; truyện thơ Nôm (Truyện Kiều – Nguyễn Du)","Thơ tám chữ, thơ hiện đại","Truyện trinh thám; truyện lịch sử","Kịch (bi kịch, hài kịch)","Văn bản nghị luận văn học và nghị luận xã hội","Văn bản thông tin; tùy bút, tản văn","Tiếng Việt: điển tích, điển cố; từ Hán Việt; câu ghép và các kiểu quan hệ; biến đổi cấu trúc câu","Viết: bài nghị luận về vấn đề xã hội, phân tích tác phẩm, truyện kể sáng tạo"],
+ tip:"<b>Ôn thi vào 10:</b> Đề đọc hiểu thường dùng ngữ liệu ngoài sách giáo khoa, nên luyện kĩ năng đọc theo thể loại thay vì học thuộc bài văn mẫu.",
+ ex:[
+ {t:"Biện pháp tu từ",lv:1,q:"Chỉ ra và nêu tác dụng của biện pháp tu từ trong câu thơ: “Mặt trời xuống biển như hòn lửa” (Huy Cận).",
+  a:"<p>Biện pháp: <b>so sánh</b> (mặt trời – hòn lửa, từ so sánh “như”).</p><p>Tác dụng: gợi hình ảnh hoàng hôn rực rỡ, ấm áp trên biển; làm câu thơ sinh động, mở ra khung cảnh thiên nhiên tráng lệ khi đoàn thuyền ra khơi.</p>"},
+ {t:"Câu ghép",lv:1,q:"Xác định kiểu quan hệ giữa các vế câu ghép: “Vì trời mưa to nên trận đấu bị hoãn.”",
+  a:"<p>Quan hệ <b>nguyên nhân – kết quả</b>, thể hiện qua cặp kết từ “vì… nên…”.</p>"},
+ {t:"Điển tích, điển cố",lv:2,q:"Điển tích là gì? Giải thích điển cố “Tái ông thất mã” và cho biết ý nghĩa khi dùng.",
+  a:"<p>Điển tích, điển cố là câu chuyện, sự việc trong sách xưa được dẫn ngắn gọn để nói điều tương tự.</p><p><b>Tái ông thất mã</b>: ông lão ở biên ải mất ngựa, sau ngựa về kéo theo ngựa tốt; ý nói họa phúc khó lường, việc xấu có khi lại thành tốt. Dùng để khuyên người ta bình tĩnh trước được mất.</p>"},
+ {t:"Nghị luận văn học",lv:3,q:"Lập dàn ý: Phân tích nhân vật Vũ Nương trong “Chuyện người con gái Nam Xương” (Nguyễn Dữ).",
+  a:"<ol><li><b>Mở bài:</b> Giới thiệu Nguyễn Dữ, tác phẩm (Truyền kì mạn lục), nhân vật Vũ Nương – người phụ nữ đức hạnh mà bất hạnh.</li><li><b>Thân bài:</b><ul><li>Phẩm chất: thùy mị, nết na; giữ gìn khuôn phép với chồng hay ghen; thủy chung khi chồng đi lính; hiếu thảo với mẹ chồng.</li><li>Bi kịch: bị chồng nghi oan vì lời con trẻ, không được giãi bày, phải tự vẫn ở bến Hoàng Giang.</li><li>Nguyên nhân: chiến tranh phong kiến; chế độ nam quyền; tính đa nghi của Trương Sinh.</li><li>Yếu tố kì ảo: Vũ Nương sống ở thủy cung, hiện về trên sông → hoàn chỉnh vẻ đẹp nhân vật, thể hiện ước mơ công lí nhưng vẫn giữ kết thúc bi kịch.</li><li>Nghệ thuật: kết cấu chặt, tình tiết bất ngờ (chiếc bóng), kết hợp hiện thực và kì ảo.</li></ul></li><li><b>Kết bài:</b> Giá trị hiện thực và nhân đạo; cảm nghĩ của em.</li></ol>"},
+ {t:"Nghị luận xã hội",lv:3,q:"Lập dàn ý bài văn (khoảng 600 chữ) bàn về ý thức tự học của học sinh hiện nay.",
+  a:"<ol><li><b>Mở bài:</b> Nêu vấn đề: tự học quyết định chất lượng học tập.</li><li><b>Giải thích:</b> Tự học là chủ động tìm hiểu, luyện tập, không phụ thuộc hoàn toàn vào thầy cô.</li><li><b>Bàn luận:</b><ul><li>Vai trò: hiểu sâu, nhớ lâu; rèn tính kỉ luật; thích ứng thời đại thay đổi nhanh.</li><li>Dẫn chứng: tấm gương tự học (ví dụ: Bác Hồ tự học ngoại ngữ); học sinh nông thôn tự học qua tài liệu số đạt giải cao.</li><li>Phản đề: một bộ phận học sinh thụ động, học đối phó, lạm dụng lời giải trên mạng.</li></ul></li><li><b>Bài học:</b> Lập kế hoạch học tập, đặt mục tiêu từng tuần, dùng Internet có chọn lọc.</li><li><b>Kết bài:</b> Khẳng định lại ý nghĩa; liên hệ bản thân.</li></ol>"},
+ {t:"Đọc hiểu",lv:2,q:"Khi đọc một văn bản nghị luận, cần xác định những yếu tố nào?",
+  a:"<ul><li><b>Vấn đề</b> nghị luận (bàn về điều gì).</li><li><b>Luận điểm</b> chính và các luận điểm bộ phận.</li><li><b>Lí lẽ và bằng chứng</b> làm sáng tỏ luận điểm.</li><li>Mối quan hệ giữa các luận điểm; thái độ, quan điểm của người viết.</li></ul>"}
+ ]},
+{id:"tienganh",ico:"En",name:"Tiếng Anh",periods:105,week:3,exam:true,
+ topics:["Unit 1–3: Local Community; City Life; Healthy Living for Teens","Unit 4–6: Remembering the Past; Our Experiences; Vietnamese Lifestyle: Then and Now","Unit 7–9: Natural Wonders; Tourism; World Englishes","Unit 10–12: Planet Earth; Electronic Devices; Career Choices","Grammar: phrasal verbs, so sánh, wish, used to","Grammar: present perfect, relative clauses, reported speech","Grammar: conditional sentences type 1–2, question words before to-infinitive"],
+ tip:"<b>Ôn thi vào 10:</b> Mỗi ngày làm 1 bài đọc hiểu và 10 câu viết lại câu. Các dạng viết lại hay gặp: wish, reported speech, relative clause, câu điều kiện.",
+ ex:[
+ {t:"Wish",lv:1,q:"Rewrite: “I don't have much free time.” → I wish…",
+  a:"<p><b>I wish I had more free time.</b></p><p>Ước ở hiện tại: S + wish + S + V (quá khứ đơn).</p>"},
+ {t:"Reported speech",lv:2,q:"Rewrite: She said, “I am tired today.” → She said that…",
+  a:"<p><b>She said that she was tired that day.</b></p><p>Lùi thì: am → was; đổi đại từ I → she; today → that day.</p>"},
+ {t:"Relative clauses",lv:1,q:"Combine: “The man is a doctor. He lives next door.”",
+  a:"<p><b>The man who lives next door is a doctor.</b></p><p>“who” thay cho người, làm chủ ngữ trong mệnh đề quan hệ.</p>"},
+ {t:"Present perfect",lv:2,q:"Rewrite: “I started living here in 2015.” → I have…",
+  a:"<p><b>I have lived here since 2015.</b></p><p>since + mốc thời gian; for + khoảng thời gian.</p>"},
+ {t:"Used to",lv:1,q:"Complete: When I was a child, I ___ (climb) trees in my village.",
+  a:"<p>When I was a child, I <b>used to climb</b> trees in my village.</p><p>used to + V nguyên mẫu: thói quen trong quá khứ, nay không còn.</p>"},
+ {t:"Conditional",lv:3,q:"Rewrite: “He doesn't study hard, so he can't pass the exam.” → If…",
+  a:"<p><b>If he studied hard, he could pass the exam.</b></p><p>Điều kiện loại 2 (trái với hiện tại): If + S + V-ed, S + would/could + V.</p>"}
+ ]},
+{id:"khtn",ico:"⚛",name:"Khoa học tự nhiên",periods:140,week:4,
+ topics:["Năng lượng cơ học: động năng, thế năng, cơ năng; công và công suất","Ánh sáng: khúc xạ, phản xạ toàn phần, lăng kính, thấu kính","Điện: định luật Ohm; đoạn mạch nối tiếp, song song; năng lượng và công suất điện","Điện từ: cảm ứng điện từ, dòng điện xoay chiều","Kim loại; dãy hoạt động hóa học; phi kim","Hợp chất hữu cơ; alkane, alkene; nhiên liệu","Ethylic alcohol, acetic acid; lipid, carbohydrate, protein, polymer","Di truyền: gene, DNA, nhiễm sắc thể; quy luật Mendel; đột biến","Tiến hóa; ứng dụng công nghệ di truyền"],
+ tip:"<b>Mẹo:</b> Viết đơn vị ở mọi bước tính. Sai đơn vị là lỗi mất điểm phổ biến nhất ở phần Vật lí.",
+ ex:[
+ {t:"Động năng",lv:1,q:"Một ô tô khối lượng 1 000 kg chuyển động với tốc độ 20 m/s. Tính động năng.",
+  a:"<p class='math'>W<sub>đ</sub> = ½mv² = ½ · 1 000 · 20² = 200 000 J</p><span class='ans'>200 000 J = 200 kJ</span>"},
+ {t:"Thế năng",lv:1,q:"Một vật nặng 2 kg ở độ cao 5 m so với mặt đất. Tính thế năng trọng trường (lấy trọng lượng P = 10m).",
+  a:"<p>P = 10 · 2 = 20 N.</p><p class='math'>W<sub>t</sub> = P · h = 20 · 5 = 100 J</p>"},
+ {t:"Định luật Ohm",lv:2,q:"Hai điện trở R₁ = 4 Ω và R₂ = 6 Ω mắc nối tiếp vào hiệu điện thế 12 V. Tính cường độ dòng điện và hiệu điện thế mỗi điện trở.",
+  a:"<p>R<sub>tđ</sub> = R₁ + R₂ = 10 Ω.</p><p>I = U/R<sub>tđ</sub> = 12/10 = <b>1,2 A</b> (nối tiếp nên I như nhau).</p><p>U₁ = I·R₁ = <b>4,8 V</b>; U₂ = I·R₂ = <b>7,2 V</b> (kiểm tra: 4,8 + 7,2 = 12 V).</p>"},
+ {t:"Mạch song song",lv:2,q:"R₁ = 6 Ω mắc song song với R₂ = 3 Ω. Tính điện trở tương đương.",
+  a:"<p class='math'>R<sub>tđ</sub> = "+F("R₁ · R₂","R₁ + R₂")+" = "+F("6 · 3","9")+" = 2 Ω</p>"},
+ {t:"Thấu kính",lv:3,q:"Vật sáng AB đặt vuông góc trục chính thấu kính hội tụ có tiêu cự 10 cm, cách thấu kính 30 cm. Xác định vị trí và tính chất ảnh.",
+  a:"<p class='math'>"+F(1,"f")+" = "+F(1,"d")+" + "+F(1,"d'")+" ⇒ "+F(1,"d'")+" = "+F(1,10)+" − "+F(1,30)+" = "+F(2,30)+"</p><p>⇒ <b>d' = 15 cm</b>. Ảnh <b>thật, ngược chiều</b>, nhỏ bằng d'/d = 0,5 lần vật.</p>"},
+ {t:"Kim loại",lv:2,q:"Cho 5,6 g Fe tác dụng hết với dung dịch HCl. Tính thể tích khí H₂ thu được ở điều kiện chuẩn (25 °C, 1 bar).",
+  a:"<p>Fe + 2HCl → FeCl₂ + H₂</p><p>n<sub>Fe</sub> = 5,6 : 56 = 0,1 mol ⇒ n<sub>H₂</sub> = 0,1 mol.</p><p class='math'>V = 0,1 · 24,79 = 2,479 L</p>"},
+ {t:"Hữu cơ",lv:1,q:"Viết phương trình đốt cháy ethylic alcohol.",
+  a:"<p class='math'>C₂H₅OH + 3O₂ → 2CO₂ + 3H₂O (có nhiệt độ)</p>"},
+ {t:"Di truyền Mendel",lv:3,q:"Ở đậu Hà Lan, hoa đỏ (A) trội hoàn toàn so với hoa trắng (a). Cho cây Aa tự thụ phấn. Xác định tỉ lệ kiểu gene, kiểu hình ở F1.",
+  a:"<p>P: Aa × Aa → giao tử: (A, a) × (A, a).</p><p>F1 kiểu gene: <b>1AA : 2Aa : 1aa</b>.</p><p>Kiểu hình: <b>3 hoa đỏ : 1 hoa trắng</b>.</p>"}
+ ]},
+{id:"lsdl",ico:"⌖",name:"Lịch sử và Địa lí",periods:105,week:3,
+ topics:["Thế giới 1918–1945: Liên Xô, châu Âu và Mỹ, châu Á; Chiến tranh thế giới thứ hai","Việt Nam 1918–1945: Đảng Cộng sản Việt Nam ra đời; Cách mạng tháng Tám","Thế giới 1945–1991: Chiến tranh lạnh","Việt Nam 1945–1991: kháng chiến chống Pháp, chống Mỹ; công cuộc Đổi mới từ 1986","Thế giới và Việt Nam từ 1991 đến nay; toàn cầu hóa","Địa lí dân cư Việt Nam","Địa lí các ngành kinh tế: nông, lâm, thủy sản, công nghiệp, dịch vụ","Các vùng kinh tế, trong đó có Đông Nam Bộ","Phát triển tổng hợp kinh tế biển, bảo vệ tài nguyên môi trường biển đảo"],
+ tip:"<b>Mẹo:</b> Với câu hỏi Địa lí có số liệu: luôn nhận xét theo thứ tự xu hướng chung → số liệu dẫn chứng → giải thích.",
+ ex:[
+ {t:"Lịch sử Việt Nam",lv:1,q:"Đảng Cộng sản Việt Nam ra đời vào thời gian nào, ở đâu, do ai chủ trì?",
+  a:"<p>Hội nghị thành lập Đảng họp từ <b>ngày 6/1 đến 7/2/1930</b> tại <b>Cửu Long (Hương Cảng, Trung Quốc)</b>, do <b>Nguyễn Ái Quốc</b> chủ trì. Ngày <b>3/2</b> được lấy làm ngày kỉ niệm thành lập Đảng.</p>"},
+ {t:"Cách mạng tháng Tám",lv:2,q:"Nêu ý nghĩa lịch sử của Cách mạng tháng Tám năm 1945.",
+  a:"<ul><li>Lật đổ ách thống trị của phát xít Nhật và chế độ phong kiến, lập nên nước Việt Nam Dân chủ Cộng hòa.</li><li>Nhân dân từ thân phận nô lệ trở thành người làm chủ đất nước.</li><li>Mở ra kỉ nguyên độc lập dân tộc gắn liền với chủ nghĩa xã hội.</li><li>Cổ vũ phong trào giải phóng dân tộc ở các nước thuộc địa.</li></ul>"},
+ {t:"Đổi mới",lv:2,q:"Công cuộc Đổi mới được đề ra tại đại hội nào? Nêu 2 thành tựu tiêu biểu.",
+  a:"<p>Đại hội đại biểu toàn quốc lần thứ VI của Đảng (<b>tháng 12/1986</b>).</p><p>Thành tựu: thoát khỏi khủng hoảng kinh tế – xã hội; từ nước thiếu lương thực trở thành nước xuất khẩu gạo hàng đầu thế giới; hội nhập quốc tế sâu rộng (gia nhập ASEAN 1995, WTO 2007).</p>"},
+ {t:"Dân cư",lv:1,q:"Một tỉnh có diện tích 12 700 km² và dân số khoảng 4 400 000 người. Tính mật độ dân số.",
+  a:"<p class='math'>Mật độ = dân số : diện tích = 4 400 000 : 12 700 ≈ 346 người/km²</p>"},
+ {t:"Đông Nam Bộ",lv:3,q:"Trình bày thế mạnh để Đông Nam Bộ phát triển cây công nghiệp lâu năm.",
+  a:"<ul><li><b>Đất</b>: đất badan và đất xám diện tích lớn, thoát nước tốt.</li><li><b>Khí hậu</b> cận xích đạo, nóng quanh năm, có mùa khô thuận lợi phơi sấy.</li><li><b>Địa hình</b> tương đối bằng phẳng, thuận lợi cơ giới hóa.</li><li>Có cơ sở chế biến, thị trường xuất khẩu, lao động có kinh nghiệm.</li></ul><p>Sản phẩm chính: cao su, điều, hồ tiêu, cà phê. Vùng đất Bình Phước cũ (nay thuộc Đồng Nai) nổi bật với cây điều và cao su.</p>"}
+ ]},
+{id:"gdcd",ico:"⚖",name:"Giáo dục công dân",periods:35,week:1,
+ topics:["Sống có lí tưởng","Khoan dung","Tích cực tham gia các hoạt động cộng đồng","Khách quan và công bằng","Bảo vệ hòa bình","Quản lí thời gian hiệu quả","Thích ứng với thay đổi","Tiêu dùng thông minh","Vi phạm pháp luật và trách nhiệm pháp lí","Quyền và nghĩa vụ lao động của công dân"],
+ tip:"<b>Mẹo:</b> Câu tình huống pháp luật: xác định hành vi → loại vi phạm (hình sự, hành chính, dân sự, kỉ luật) → trách nhiệm pháp lí tương ứng.",
+ ex:[
+ {t:"Vi phạm pháp luật",lv:2,q:"Anh T (17 tuổi) đi xe máy vượt đèn đỏ và bị cảnh sát giao thông xử phạt. Đây là loại vi phạm gì? Anh T phải chịu trách nhiệm gì?",
+  a:"<p>Đây là <b>vi phạm hành chính</b> (xâm phạm quy tắc quản lí nhà nước về trật tự an toàn giao thông, chưa đến mức tội phạm).</p><p>Anh T phải chịu <b>trách nhiệm hành chính</b>: bị xử phạt theo quy định (phạt tiền, có thể kèm hình thức bổ sung).</p>"},
+ {t:"Tiêu dùng thông minh",lv:1,q:"Nêu 4 biểu hiện của tiêu dùng thông minh.",
+  a:"<ul><li>Lập danh sách và ngân sách trước khi mua.</li><li>So sánh giá, đọc kĩ nhãn mác, hạn sử dụng.</li><li>Chọn sản phẩm có nguồn gốc rõ ràng, thân thiện môi trường.</li><li>Tỉnh táo trước quảng cáo, khuyến mãi; biết bảo vệ quyền lợi người tiêu dùng.</li></ul>"},
+ {t:"Quản lí thời gian",lv:1,q:"Em hãy lập thời gian biểu một buổi tối có 3 giờ (19h–22h) để vừa học vừa nghỉ ngơi hợp lí.",
+  a:"<ul><li>19:00–20:00: Toán (làm bài tập).</li><li>20:00–20:10: Nghỉ, uống nước.</li><li>20:10–21:00: Ngữ văn hoặc Tiếng Anh.</li><li>21:00–21:30: Chuẩn bị sách vở ngày mai, đọc sách.</li><li>21:30–22:00: Vệ sinh cá nhân, đi ngủ.</li></ul><p>Nguyên tắc: việc quan trọng làm trước; tắt thông báo điện thoại khi học.</p>"}
+ ]},
+{id:"tinhoc",ico:"⌨",name:"Tin học",periods:35,week:1,
+ topics:["Thế giới kĩ thuật số: vai trò của máy tính trong đời sống","Đánh giá chất lượng thông tin trên Internet","Đạo đức, pháp luật và văn hóa trong môi trường số","Phần mềm mô phỏng; trình bày thông tin trong trao đổi","Bảng tính: hàm IF, COUNTIF, SUMIF; xác thực dữ liệu","Làm video đơn giản","Giải quyết vấn đề: thuật toán, sơ đồ khối, cấu trúc rẽ nhánh và lặp"],
+ tip:"<b>Mẹo:</b> Trong bảng tính, cố định ô tham chiếu bằng $ (ví dụ $B$2) trước khi sao chép công thức.",
+ ex:[
+ {t:"Hàm IF",lv:1,q:"Cột E chứa điểm trung bình. Viết công thức ở F2 để xếp loại “Đạt” nếu điểm ≥ 5, ngược lại “Chưa đạt”.",
+  a:"<p><code>=IF(E2>=5,\"Đạt\",\"Chưa đạt\")</code></p>"},
+ {t:"COUNTIF / SUMIF",lv:2,q:"Cột C là giới tính (Nam/Nữ), cột D là số sách quyên góp (D2:D40). Đếm số bạn nữ và tính tổng sách các bạn nữ quyên góp.",
+  a:"<p>Đếm: <code>=COUNTIF(C2:C40,\"Nữ\")</code></p><p>Tổng: <code>=SUMIF(C2:C40,\"Nữ\",D2:D40)</code></p>"},
+ {t:"Thuật toán",lv:3,q:"Mô tả thuật toán tìm số lớn nhất trong dãy n số.",
+  a:"<ol><li>Gán Max = số thứ nhất.</li><li>Lần lượt xét từ số thứ 2 đến số thứ n: nếu số đang xét > Max thì gán Max = số đó.</li><li>Kết thúc, Max là số lớn nhất.</li></ol>"},
+ {t:"Chất lượng thông tin",lv:1,q:"Nêu 3 tiêu chí đánh giá một thông tin trên mạng có đáng tin cậy không.",
+  a:"<ul><li><b>Nguồn</b>: tác giả, đơn vị chịu trách nhiệm rõ ràng (cơ quan nhà nước, báo chí chính thống).</li><li><b>Tính cập nhật</b>: có ngày đăng, còn phù hợp.</li><li><b>Kiểm chứng chéo</b>: nhiều nguồn tin cậy cùng xác nhận.</li></ul>"}
+ ]},
+{id:"congnghe",ico:"⚙",name:"Công nghệ",periods:52,week:1.5,
+ topics:["Định hướng nghề nghiệp: nghề trong lĩnh vực kĩ thuật, công nghệ","Thị trường lao động; lựa chọn nghề phù hợp","Mô-đun tự chọn (tùy trường): Lắp đặt mạng điện trong nhà","Mô-đun tự chọn: Trồng cây ăn quả","Mô-đun tự chọn: Chế biến thực phẩm / Cắt may / Nông nghiệp 4.0"],
+ tip:"<b>Lưu ý:</b> Mô-đun tự chọn do nhà trường quyết định; hỏi giáo viên để biết lớp em học mô-đun nào.",
+ ex:[
+ {t:"Điện năng",lv:1,q:"Một bóng đèn 40 W dùng 5 giờ mỗi ngày. Tính điện năng tiêu thụ trong 30 ngày.",
+  a:"<p class='math'>A = P · t = 40 W · (5 · 30) h = 6 000 Wh = 6 kWh</p><span class='ans'>6 kWh (6 “số điện”)</span>"},
+ {t:"Mạng điện trong nhà",lv:2,q:"Nêu chức năng của aptomat (cầu dao tự động) trong mạng điện gia đình.",
+  a:"<p>Tự động <b>ngắt mạch</b> khi xảy ra <b>ngắn mạch hoặc quá tải</b>, bảo vệ dây dẫn và thiết bị; đồng thời dùng để đóng – cắt điện bằng tay.</p>"},
+ {t:"Định hướng nghề",lv:2,q:"Nêu các bước lựa chọn nghề nghiệp phù hợp với bản thân.",
+  a:"<ol><li>Hiểu bản thân: sở thích, năng lực, tính cách (có thể dùng trắc nghiệm Holland).</li><li>Tìm hiểu nghề: công việc, yêu cầu, thu nhập.</li><li>Tìm hiểu thị trường lao động địa phương (công nghiệp, nông nghiệp công nghệ cao, dịch vụ…).</li><li>Cân nhắc điều kiện gia đình; chọn hướng học sau lớp 9 (THPT, giáo dục thường xuyên, trung cấp nghề).</li></ol>"}
+ ]},
+{id:"amnhac",ico:"♪",name:"Âm nhạc",periods:35,week:1,
+ topics:["Hát: bài hát Việt Nam và nước ngoài","Nhạc cụ: sáo recorder, kèn phím, nhạc cụ gõ","Lí thuyết: giọng, quãng, hợp âm cơ bản","Thường thức: nhạc sĩ, thể loại âm nhạc Việt Nam"],
+ tip:"<b>Mẹo:</b> Thu âm phần hát của mình bằng điện thoại để tự nghe lại và sửa cao độ.",
+ ex:[
+ {t:"Quãng",lv:2,q:"Quãng là gì? Quãng Đô – Mi gồm mấy cung?",
+  a:"<p>Quãng là khoảng cách cao độ giữa hai nốt nhạc. Đô – Mi là <b>quãng 3 trưởng</b>, gồm <b>2 cung</b> (Đô–Rê 1 cung, Rê–Mi 1 cung).</p>"}
+ ]},
+{id:"mythuat",ico:"✎",name:"Mĩ thuật",periods:35,week:1,
+ topics:["Mĩ thuật tạo hình: vẽ, in, nặn","Mĩ thuật ứng dụng: thiết kế logo, poster, bao bì","Lịch sử mĩ thuật Việt Nam và thế giới","Thưởng thức và phân tích tác phẩm"],
+ tip:"<b>Mẹo:</b> Thiết kế poster: một hình ảnh chủ đạo, một câu khẩu hiệu ngắn, không quá 3 màu chính.",
+ ex:[
+ {t:"Thiết kế",lv:2,q:"Nêu nguyên tắc cơ bản khi thiết kế một logo.",
+  a:"<ul><li>Đơn giản, dễ nhận biết, dễ nhớ.</li><li>Thể hiện được ý nghĩa, đặc trưng của đơn vị.</li><li>Rõ ràng khi thu nhỏ hoặc in một màu.</li><li>Hài hòa giữa hình và chữ.</li></ul>"}
+ ]},
+{id:"gdtc",ico:"⚑",name:"Giáo dục thể chất",periods:70,week:2,
+ topics:["Chạy cự li ngắn, chạy cự li trung bình","Nhảy xa, nhảy cao","Bài tập thể dục","Thể thao tự chọn: bóng đá, bóng chuyền, bóng rổ, cầu lông, đá cầu…","Tiêu chuẩn rèn luyện thể lực học sinh"],
+ tip:"<b>Mẹo:</b> Chạy cự li trung bình: hít vào 2 bước, thở ra 2 bước để giữ sức.",
+ ex:[
+ {t:"Chạy ngắn",lv:1,q:"Kể các giai đoạn kĩ thuật chạy cự li ngắn.",
+  a:"<p>Gồm 4 giai đoạn: <b>xuất phát → chạy lao sau xuất phát → chạy giữa quãng → về đích</b>.</p>"}
+ ]},
+{id:"hdtn",ico:"★",name:"Hoạt động trải nghiệm, hướng nghiệp",periods:105,week:3,
+ topics:["Xây dựng và phát triển nhà trường","Khám phá bản thân, rèn luyện bản thân","Trách nhiệm với gia đình","Hoạt động cộng đồng, bảo vệ môi trường","Định hướng nghề nghiệp, lựa chọn hướng học sau THCS"],
+ tip:"<b>Mẹo:</b> Hỏi người thân làm các nghề khác nhau về công việc hằng ngày của họ trước khi chọn hướng học.",
+ ex:[
+ {t:"Hướng nghiệp",lv:2,q:"Sau khi tốt nghiệp THCS, học sinh có những con đường học tiếp nào?",
+  a:"<ul><li>Học <b>THPT</b> (công lập, tư thục) qua kì thi tuyển sinh lớp 10.</li><li>Học <b>giáo dục thường xuyên</b> cấp THPT.</li><li>Học <b>trung cấp nghề</b> (có thể kết hợp học văn hóa THPT).</li><li>Tham gia lao động sau khi được đào tạo nghề ngắn hạn.</li></ul>"}
+ ]},
+{id:"diaphuong",ico:"⌂",name:"Nội dung giáo dục địa phương",periods:35,week:1,
+ topics:["Lịch sử, văn hóa, truyền thống cách mạng của địa phương","Địa lí, kinh tế, tài nguyên của tỉnh","Nghề truyền thống, sản phẩm đặc trưng","Bảo vệ môi trường và di sản địa phương"],
+ tip:"<b>Lưu ý:</b> Tài liệu môn này do UBND tỉnh phê duyệt, nội dung theo tài liệu giáo dục địa phương tỉnh Đồng Nai.",
+ ex:[
+ {t:"Địa phương",lv:1,q:"Từ ngày 01/7/2025, tỉnh Bình Phước và tỉnh Đồng Nai hợp nhất thành tỉnh nào? Nêu 2 thế mạnh kinh tế của tỉnh mới.",
+  a:"<p>Hai tỉnh hợp nhất thành <b>tỉnh Đồng Nai</b>.</p><p>Thế mạnh: <b>công nghiệp</b> với nhiều khu công nghiệp (khu vực Biên Hòa, Nhơn Trạch…) cùng Cảng hàng không quốc tế Long Thành; <b>nông nghiệp cây công nghiệp</b> lâu năm như điều, cao su, hồ tiêu (khu vực Bình Phước cũ).</p>"}
+ ]}
+]}
+};
+
+/* ============================ TRẠNG THÁI ============================ */
+const LV={1:"Nhận biết",2:"Thông hiểu",3:"Vận dụng"};
+const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let done=store.get("tq-done",{});
+const state={grade:"9",subject:null,level:0,query:""};
+const $=s=>document.querySelector(s), view=$("#view");
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const plain=s=>s.replace(/<[^>]+>/g," ").toLowerCase();
+const key=(g,s,i)=>`${g}-${s}-${i}`;
+const doneCount=(g,s)=>DATA[g].subjects.find(x=>x.id===s).ex.filter((_,i)=>done[key(g,s,i)]).length;
+
+function updateProgress(){
+  const g=state.grade, subs=DATA[g].subjects;
+  const total=subs.reduce((n,s)=>n+s.ex.length,0), d=subs.reduce((n,s)=>n+doneCount(g,s.id),0);
+  $("#progress").textContent=`Lớp ${g}: đã làm ${d}/${total} bài`;
+}
+
+function renderGrid(){
+  const g=state.grade, D=DATA[g], q=state.query.trim().toLowerCase();
+  let subs=D.subjects;
+  if(q) subs=subs.filter(s=>plain(s.name+" "+s.topics.join(" ")+" "+s.ex.map(e=>e.t+" "+e.q).join(" ")).includes(q));
+  view.innerHTML=`
+   <div class="sec-head"><h2>Lớp ${g} · ${D.subjects.length} môn học</h2><p>${esc(D.school)}</p></div>
+   ${subs.length?`<div class="grid">${subs.map(s=>{const dc=doneCount(g,s.id);return `
+     <button class="card" data-open="${s.id}">
+       <span class="ico" aria-hidden="true">${s.ico}</span>
+       <h3>${esc(s.name)}</h3>
+       <span class="meta">${s.periods} tiết/năm · ${s.topics.length} chủ đề · ${s.ex.length} bài giải</span>
+       <span class="tags">${s.exam?'<span class="pill exam">Thi vào 10</span>':""}${s.score?'<span class="pill">Có điểm số</span>':""}${dc?`<span class="pill done">Đã làm ${dc}/${s.ex.length}</span>`:""}</span>
+     </button>`}).join("")}</div>`:`<div class="empty">Không có môn nào khớp “${esc(state.query)}”. Thử từ khóa khác.</div>`}
+   <section class="src"><h3>Ghi chú về chương trình</h3><p style="margin:0 0 8px">${esc(D.note)}</p>${SOURCES}</section>`;
+}
+
+function renderDetail(){
+  const g=state.grade, s=DATA[g].subjects.find(x=>x.id===state.subject);
+  if(!s){state.subject=null;return render()}
+  const list=s.ex.map((e,i)=>({...e,i})).filter(e=>!state.level||e.lv===state.level);
+  view.innerHTML=`
+   <nav class="crumb"><button data-back>Lớp ${g}</button><span>›</span><span>${esc(s.name)}</span></nav>
+   <div class="detail">
+     <aside class="panel">
+       <h2 class="subj-title">${esc(s.name)}</h2>
+       <dl class="facts"><dt>Lớp</dt><dd>${g} · ${esc(DATA[g].school)}</dd><dt>Thời lượng</dt><dd>${s.periods} tiết/năm (~${String(s.week).replace(".",",")} tiết/tuần)</dd><dt>Bài giải</dt><dd>${s.ex.length} bài</dd>${s.exam?"<dt>Ghi chú</dt><dd>Môn thi vào lớp 10</dd>":""}</dl>
+       <h3 style="margin-top:18px">Chủ đề trọng tâm</h3>
+       <ol class="topics">${s.topics.map(t=>`<li>${esc(t)}</li>`).join("")}</ol>
+       <div class="tip">${s.tip}</div>
+     </aside>
+     <section style="min-width:0">
+       <div class="ex-tools">
+         <div class="chips" role="group" aria-label="Lọc mức độ">${[0,1,2,3].map(l=>`<button class="chip" data-lv="${l}" aria-pressed="${state.level===l}">${l?LV[l]:"Tất cả"}</button>`).join("")}</div>
+         <button class="ghost" data-toggleall>Mở tất cả lời giải</button>
+       </div>
+       <div class="ex-list">${list.length?list.map(e=>`
+         <article class="ex" id="ex-${e.i}">
+           <div class="ex-q">
+             <div class="ex-head"><span class="ex-no">Bài ${e.i+1}</span><span class="lv lv-${e.lv}">${LV[e.lv]}</span><span class="ex-topic">${esc(e.t)}</span></div>
+             <p>${e.q}</p>
+           </div>
+           <div class="ex-actions">
+             <button class="show" data-show="${e.i}" aria-expanded="false">Xem lời giải</button>
+             <button class="mark" data-mark="${e.i}" aria-pressed="${!!done[key(g,s.id,e.i)]}">${done[key(g,s.id,e.i)]?"✓ Đã làm":"Đánh dấu đã làm"}</button>
+           </div>
+           <div class="sol" id="sol-${e.i}" hidden><div class="lbl">Lời giải</div>${e.a}</div>
+         </article>`).join(""):`<div class="empty">Chưa có bài ở mức độ này.</div>`}</div>
+     </section>
+   </div>`;
+}
+
+function render(){
+  document.querySelectorAll(".grade-btn").forEach(b=>b.setAttribute("aria-pressed",b.dataset.grade===state.grade));
+  state.subject?renderDetail():renderGrid();
+  updateProgress();
+}
+function go(grade,subject){
+  state.grade=grade;state.subject=subject||null;state.level=0;
+  const h="lop"+grade+(subject?"-"+subject:"");
+  if(location.hash.slice(1)!==h) history.replaceState(null,"","#"+h);
+  store.set("tq-grade",grade);
+  render();window.scrollTo({top:0});
+}
+function fromHash(){
+  const m=location.hash.match(/^#lop(5|9)(?:-([a-z]+))?$/);
+  if(m){state.grade=m[1];state.subject=m[2]||null}else{state.grade=store.get("tq-grade","9")}
+  render();
+}
+
+const SOURCES=`<ul>
+ <li>Chương trình GDPT 2018 – Thông tư 32/2018/TT-BGDĐT, Bộ GD&ĐT: <a href="https://moet.gov.vn" target="_blank" rel="noopener">moet.gov.vn</a></li>
+ <li>Sở GD&ĐT tỉnh Đồng Nai: <a href="https://sgddt.dongnai.gov.vn" target="_blank" rel="noopener">sgddt.dongnai.gov.vn</a></li>
+ <li>Cổng thông tin văn bản pháp luật: <a href="https://vanban.chinhphu.vn" target="_blank" rel="noopener">vanban.chinhphu.vn</a></li>
+ <li>Chủ đề minh họa theo mạch nội dung của bộ sách “Kết nối tri thức với cuộc sống”. Nếu trường dùng bộ sách khác, tên bài có thể khác nhưng yêu cầu cần đạt của chương trình là như nhau. Bài tập và lời giải được biên soạn mới, không sao chép sách giải.</li>
+</ul>`;
+
+/* ============================ SỰ KIỆN ============================ */
+document.addEventListener("click",ev=>{
+  const t=ev.target.closest("button"); if(!t) return;
+  if(t.dataset.grade) return go(t.dataset.grade,null);
+  if(t.dataset.open) return go(state.grade,t.dataset.open);
+  if(t.hasAttribute("data-back")) return go(state.grade,null);
+  if(t.dataset.lv!==undefined){state.level=+t.dataset.lv;return renderDetail()}
+  if(t.dataset.show!==undefined){const s=$("#sol-"+t.dataset.show);s.hidden=!s.hidden;t.textContent=s.hidden?"Xem lời giải":"Ẩn lời giải";t.setAttribute("aria-expanded",!s.hidden);return}
+  if(t.hasAttribute("data-toggleall")){const sols=[...document.querySelectorAll(".sol")];const open=sols.some(s=>s.hidden);
+    sols.forEach(s=>s.hidden=!open);document.querySelectorAll("[data-show]").forEach(b=>{b.textContent=open?"Ẩn lời giải":"Xem lời giải";b.setAttribute("aria-expanded",open)});t.textContent=open?"Đóng tất cả lời giải":"Mở tất cả lời giải";return}
+  if(t.dataset.mark!==undefined){const k=key(state.grade,state.subject,t.dataset.mark);done[k]=!done[k];if(!done[k])delete done[k];store.set("tq-done",done);
+    t.setAttribute("aria-pressed",!!done[k]);t.textContent=done[k]?"✓ Đã làm":"Đánh dấu đã làm";updateProgress();}
+});
+$("#q").addEventListener("input",e=>{state.query=e.target.value;if(state.subject){state.subject=null;history.replaceState(null,"","#lop"+state.grade)}renderGrid()});
+window.addEventListener("hashchange",fromHash);
+fromHash();
+</script>
