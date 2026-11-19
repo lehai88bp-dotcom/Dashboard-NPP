@@ -138,6 +138,7 @@ ol.topics li::marker{color:var(--blue);font-weight:700}
 .teach .primary{background:var(--amber);color:var(--paper);border-color:transparent;font-weight:700}
 body.teaching main .wrap{padding-bottom:120px}
 @media (prefers-reduced-motion:reduce){.teach.speaking .avatar{animation:none}.sol .pending{transition:none}}
+.vid{padding:0 18px 14px}.vid video{width:100%;max-width:100%;aspect-ratio:16/9;border-radius:10px;background:#000;display:block}
 .progress{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
 @media (prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
 </style>
@@ -501,6 +502,7 @@ subjects:[
 
 /* ============================ TRẠNG THÁI ============================ */
 const LV={1:"Nhận biết",2:"Thông hiểu",3:"Vận dụng"};
+const VIDEOS={"9-toan-3":"video/L9_toan_4.mp4","9-toan-6":"video/L9_toan_7.mp4","5-toan-5":"video/L5_toan_6.mp4","5-toan-6":"video/L5_toan_7.mp4"};
 const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 let done=store.get("tq-done",{});
 const state={grade:"9",subject:null,level:0,query:""};
@@ -560,8 +562,10 @@ function renderDetail(){
            <div class="ex-actions">
              <button class="show" data-show="${e.i}" aria-expanded="false">Xem lời giải</button>
              <button class="teachbtn" data-teach="${e.i}">${ttsNS?"▶ Nghe cô giảng":"▶ Học từng bước"}</button>
+             ${VIDEOS[key(g,s.id,e.i)]?`<button class="teachbtn" data-video="${e.i}">🎬 Xem video bài giảng</button>`:""}
              <button class="mark" data-mark="${e.i}" aria-pressed="${!!done[key(g,s.id,e.i)]}">${done[key(g,s.id,e.i)]?"✓ Đã làm":"Đánh dấu đã làm"}</button>
            </div>
+           ${VIDEOS[key(g,s.id,e.i)]?`<div class="vid" id="vid-${e.i}" hidden><video controls preload="none" playsinline src="${VIDEOS[key(g,s.id,e.i)]}"></video></div>`:""}
            <div class="sol" id="sol-${e.i}" hidden><div class="lbl">Lời giải</div>${e.a}</div>
          </article>`).join(""):`<div class="empty">Chưa có bài ở mức độ này.</div>`}</div>
      </section>
@@ -605,6 +609,8 @@ document.addEventListener("click",ev=>{
   if(t.id==="exportBtn") return exportExcel(t);
   if(t.dataset.teach!==undefined) return startLesson(+t.dataset.teach);
   if(t.id==="tStop") return endLesson(true);
+  if(t.dataset.video!==undefined){const v=$("#vid-"+t.dataset.video);v.hidden=!v.hidden;const el=v.querySelector("video");
+    if(v.hidden) el.pause(); else el.play().catch(()=>{}); t.textContent=v.hidden?"🎬 Xem video bài giảng":"Đóng video";return}
   if(t.id==="tNext") return nextStep();
   if(t.id==="tPause") return togglePause();
   if(t.dataset.lv!==undefined){state.level=+t.dataset.lv;return renderDetail()}
