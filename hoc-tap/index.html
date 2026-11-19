@@ -115,6 +115,13 @@ ol.topics li::marker{color:var(--blue);font-weight:700}
 .src{margin-top:28px;font-size:13px;color:var(--muted)}
 .src h3{font-size:13px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;color:var(--muted)}
 .src ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.back{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:10px;padding:8px 14px;font-weight:700;font-size:14px;cursor:pointer}
+.back:hover{border-color:var(--blue);color:var(--blue)}
+.export{display:inline-flex;align-items:center;gap:6px;border:0;background:var(--green);color:#fff;border-radius:10px;padding:10px 14px;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap}
+.export:disabled{opacity:.6;cursor:wait}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:10px;font-size:13.5px;z-index:20;max-width:calc(100% - 32px)}
+.crumb-row{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin-bottom:14px}
+.crumb-row .crumb{margin:0}
 .progress{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
 @media (prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
 </style>
@@ -136,11 +143,15 @@ ol.topics li::marker{color:var(--blue);font-weight:700}
       <button class="grade-btn" id="g5" data-grade="5" aria-pressed="false"><b>Lớp 5</b><em>Tiểu học Tân Quan</em></button>
       <button class="grade-btn" id="g9" data-grade="9" aria-pressed="false"><b>Lớp 9</b><em>THCS Tân Quan</em></button>
     </div>
+    <button class="grade-btn" id="backTop" hidden style="border:1px solid var(--line);background:var(--paper)"><b>← Quay lại</b><em>Danh sách môn</em></button>
     <label class="search" for="q"><input id="q" type="search" placeholder="Tìm môn, chủ đề hoặc bài tập…" autocomplete="off"></label>
+    <button class="export" id="exportBtn" title="Tải dữ liệu môn học và bài giải ra file Excel">⤓ Xuất Excel</button>
   </div>
 </div>
 
 <main><div class="wrap" id="view"></div></main>
+<div class="toast" id="toast" role="status" hidden></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <script>
 /* ============================ DỮ LIỆU ============================ */
@@ -500,7 +511,7 @@ function renderDetail(){
   if(!s){state.subject=null;return render()}
   const list=s.ex.map((e,i)=>({...e,i})).filter(e=>!state.level||e.lv===state.level);
   view.innerHTML=`
-   <nav class="crumb"><button data-back>Lớp ${g}</button><span>›</span><span>${esc(s.name)}</span></nav>
+   <div class="crumb-row"><button class="back" data-back>← Quay lại</button><nav class="crumb"><button data-back>Lớp ${g}</button><span>›</span><span>${esc(s.name)}</span></nav></div>
    <div class="detail">
      <aside class="panel">
        <h2 class="subj-title">${esc(s.name)}</h2>
@@ -533,12 +544,14 @@ function renderDetail(){
 function render(){
   document.querySelectorAll(".grade-btn").forEach(b=>b.setAttribute("aria-pressed",b.dataset.grade===state.grade));
   state.subject?renderDetail():renderGrid();
+  $("#backTop").hidden=!state.subject;
+  $("#exportBtn").textContent=state.subject?"⤓ Xuất Excel môn này":"⤓ Xuất Excel lớp "+state.grade;
   updateProgress();
 }
 function go(grade,subject){
   state.grade=grade;state.subject=subject||null;state.level=0;
   const h="lop"+grade+(subject?"-"+subject:"");
-  if(location.hash.slice(1)!==h) history.replaceState(null,"","#"+h);
+  if(location.hash.slice(1)!==h){ subject?history.pushState(null,"","#"+h):history.replaceState(null,"","#"+h); }
   store.set("tq-grade",grade);
   render();window.scrollTo({top:0});
 }
@@ -560,7 +573,8 @@ document.addEventListener("click",ev=>{
   const t=ev.target.closest("button"); if(!t) return;
   if(t.dataset.grade) return go(t.dataset.grade,null);
   if(t.dataset.open) return go(state.grade,t.dataset.open);
-  if(t.hasAttribute("data-back")) return go(state.grade,null);
+  if(t.hasAttribute("data-back")||t.id==="backTop") return go(state.grade,null);
+  if(t.id==="exportBtn") return exportExcel(t);
   if(t.dataset.lv!==undefined){state.level=+t.dataset.lv;return renderDetail()}
   if(t.dataset.show!==undefined){const s=$("#sol-"+t.dataset.show);s.hidden=!s.hidden;t.textContent=s.hidden?"Xem lời giải":"Ẩn lời giải";t.setAttribute("aria-expanded",!s.hidden);return}
   if(t.hasAttribute("data-toggleall")){const sols=[...document.querySelectorAll(".sol")];const open=sols.some(s=>s.hidden);
@@ -570,5 +584,50 @@ document.addEventListener("click",ev=>{
 });
 $("#q").addEventListener("input",e=>{state.query=e.target.value;if(state.subject){state.subject=null;history.replaceState(null,"","#lop"+state.grade)}renderGrid()});
 window.addEventListener("hashchange",fromHash);
+window.addEventListener("popstate",fromHash);
+
+/* ============================ XUẤT EXCEL ============================ */
+function toText(html){
+  return html
+    .replace(/<span class="frac"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g,(m,a,b)=>{const w=x=>/\s/.test(x.trim())?"("+x.trim()+")":x.trim();return w(a)+"/"+w(b)})
+    .replace(/<sub>(.*?)<\/sub>/g,"$1").replace(/<br\s*\/?>/g,"\n")
+    .replace(/<li>/g,"\n• ").replace(/<\/(p|ol|ul|pre|div)>/g,"\n").replace(/<[^>]+>/g,"")
+    .replace(/&nbsp;/g," ").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"')
+    .replace(/[ \t]+\n/g,"\n").replace(/\n{2,}/g,"\n").trim();
+}
+function buildWorkbook(g,onlyId){
+  const subs=DATA[g].subjects.filter(s=>!onlyId||s.id===onlyId);
+  const wb=XLSX.utils.book_new();
+  const sheet=(rows,cols,name)=>{const ws=XLSX.utils.aoa_to_sheet(rows);ws["!cols"]=cols.map(w=>({wch:w}));ws["!autofilter"]={ref:ws["!ref"]};XLSX.utils.book_append_sheet(wb,ws,name)};
+  sheet([["Lớp","Môn học","Số tiết/năm","Tiết/tuần","Số chủ đề","Số bài giải","Đã làm","Thi vào 10"],
+    ...subs.map(s=>[+g,s.name,s.periods,s.week,s.topics.length,s.ex.length,doneCount(g,s.id),s.exam?"Có":""])],[6,32,12,10,10,12,9,11],"Môn học");
+  const tp=[["Lớp","Môn học","STT","Chủ đề trọng tâm"]];subs.forEach(s=>s.topics.forEach((t,i)=>tp.push([+g,s.name,i+1,t])));
+  sheet(tp,[6,28,6,80],"Chủ đề");
+  const ex=[["Lớp","Môn học","Bài","Chủ đề","Mức độ","Đề bài","Lời giải","Đã làm"]];
+  subs.forEach(s=>s.ex.forEach((e,i)=>ex.push([+g,s.name,i+1,e.t,LV[e.lv],toText(e.q),toText(e.a),done[key(g,s.id,i)]?"✓":""])));
+  sheet(ex,[6,24,6,22,12,60,90,8],"Bài tập & lời giải");
+  return {wb,name:"TanQuan_Lop"+g+(onlyId?"_"+subs[0].name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").replace(/Đ/g,"D").replace(/[^A-Za-z0-9]+/g,""):"_TatCaMon")+".xlsx"};
+}
+function toast(msg){const t=$("#toast");t.textContent=msg;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,3500)}
+let downloadsNS;
+async function exportExcel(btn){
+  if(typeof XLSX==="undefined") return toast("Chưa tải được thư viện Excel. Kiểm tra mạng rồi thử lại.");
+  const {wb,name}=buildWorkbook(state.grade,state.subject);
+  if(!window.claude?.use){ XLSX.writeFile(wb,name); return toast("Đã tải "+name); }
+  btn.disabled=true;
+  try{
+    if(downloadsNS===undefined) downloadsNS=await window.claude.use("downloads");
+    if(!downloadsNS){btn.hidden=true;return toast("Trang này không hỗ trợ tải file ở chế độ xem hiện tại.")}
+    const data=XLSX.write(wb,{type:"array",bookType:"xlsx"});
+    await downloadsNS.save({filename:name,data:new Blob([data])});
+    toast("Đã lưu "+name);
+  }catch(e){
+    const c=e&&e.code;
+    if(c==="declined") toast("Đã hủy tải file.");
+    else if(c==="rate_limited") toast("Đang có một yêu cầu tải khác, thử lại sau giây lát.");
+    else if(["unavailable","not_granted","capability_disabled","capability_removed"].includes(c)){btn.hidden=true;toast("Không tải được file ở chế độ xem này.")}
+    else toast("Không tạo được file Excel. Thử lại.");
+  }finally{btn.disabled=false}
+}
 fromHash();
 </script>
