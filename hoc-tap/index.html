@@ -174,7 +174,7 @@ body.teaching main .wrap{padding-bottom:120px}
     <div class="tinfo"><b>Cô giáo ảo đang giảng</b><span id="tStatus" aria-live="polite"></span></div>
     <button id="tNext" class="primary" hidden>Bước tiếp →</button>
     <button id="tPause" hidden>Tạm dừng</button>
-    <label for="tRate" hidden id="tRateWrap"><select id="tRate" aria-label="Tốc độ giảng"><option value="0.8">Chậm</option><option value="1" selected>Vừa</option><option value="1.2">Nhanh</option></select></label>
+    <label for="tRate" hidden id="tRateWrap"><select id="tRate" aria-label="Tốc độ giảng"><option value="0.8">Chậm</option><option value="0.9" selected>Vừa</option><option value="1.05">Nhanh</option></select></label>
     <button id="tStop">Kết thúc</button>
   </div>
 </div>
@@ -625,6 +625,86 @@ window.addEventListener("hashchange",fromHash);
 window.addEventListener("popstate",fromHash);
 
 /* ============================ CÔ GIÁO ẢO ============================ */
+/* Lời giảng viết sẵn cho các bài Toán: câu nói tự nhiên, ngắt nghỉ bằng dấu phẩy, dấu chấm. Mỗi phần tử st khớp một bước lời giải. */
+const SAY={
+"5-toan-0":{q:"Đặt tính rồi tính ba phép tính với số thập phân.",st:[
+ "Câu a. Khi cộng số thập phân, các em viết các chữ số cùng hàng thẳng cột, dấu phẩy thẳng dấu phẩy. Mười hai phẩy năm, cộng bảy phẩy ba tám, bằng mười chín phẩy tám tám.",
+ "Câu b. Ta nhân như số tự nhiên. Bốn mươi lăm nhân hai mươi tư, bằng một nghìn không trăm tám mươi. Hai thừa số có tất cả hai chữ số ở phần thập phân, nên ta tách ra hai chữ số. Kết quả là mười phẩy tám.",
+ "Câu c. Ta dời dấu phẩy ở cả số chia và số bị chia sang phải một chữ số. Chín mươi sáu chia ba mươi hai, bằng ba."]},
+"5-toan-1":{q:"Mảnh vườn hình thang có đáy lớn 12 mét, đáy bé 8 mét, chiều cao 5 mét. Tính diện tích mảnh vườn.",st:[
+ "Các em nhớ công thức. Diện tích hình thang bằng tổng hai đáy, nhân với chiều cao, rồi chia cho 2.",
+ "Thay số vào. 12 cộng 8, bằng 20. 20 nhân 5, bằng 100. 100 chia 2, bằng 50.",
+ "Vậy, diện tích mảnh vườn là 50 mét vuông."]},
+"5-toan-2":{q:"Bồn hoa hình tròn có bán kính 5 mét. Tính chu vi và diện tích bồn hoa.",st:[
+ "Chu vi hình tròn bằng bán kính, nhân 2, nhân ba phẩy mười bốn. 5 nhân 2 bằng 10, nhân ba phẩy mười bốn, được ba mươi mốt phẩy bốn mét.",
+ "Diện tích hình tròn bằng bán kính, nhân bán kính, nhân ba phẩy mười bốn. 5 nhân 5 bằng 25, nhân ba phẩy mười bốn, được bảy mươi tám phẩy năm mét vuông.",
+ "Đáp số. Chu vi, ba mươi mốt phẩy bốn mét. Diện tích, bảy mươi tám phẩy năm mét vuông."]},
+"5-toan-3":{q:"Lớp 5A có 40 học sinh, trong đó có 18 bạn nữ. Số bạn nữ chiếm bao nhiêu phần trăm cả lớp?",st:[
+ "Muốn tìm tỉ số phần trăm, ta lấy 18 chia cho 40, được không phẩy bốn lăm. Nhân với 100, ta được 45 phần trăm.",
+ "Vậy, số học sinh nữ chiếm 45 phần trăm số học sinh cả lớp."]},
+"5-toan-4":{q:"Tổng của hai số là 72. Tỉ số của hai số là ba phần năm. Tìm hai số đó.",st:[
+ "Đây là dạng toán tổng và tỉ. Ta coi số bé là 3 phần, số lớn là 5 phần. Tổng số phần bằng nhau là 8 phần.",
+ "Giá trị của một phần là, 72 chia 8, bằng 9.",
+ "Số bé là, 9 nhân 3, bằng 27. Số lớn là, 9 nhân 5, bằng 45.",
+ "Đáp số, 27 và 45. Các em thử lại nhé, 27 cộng 45, đúng bằng 72."]},
+"5-toan-5":{q:"Hình hộp chữ nhật dài 5 đề-xi-mét, rộng 4 đề-xi-mét, cao 3 đề-xi-mét. Tính diện tích xung quanh, diện tích toàn phần, và thể tích.",st:[
+ "Trước hết, ta tính chu vi đáy. 5 cộng 4 bằng 9, nhân 2, được 18 đề-xi-mét.",
+ "Diện tích xung quanh, bằng chu vi đáy nhân chiều cao. 18 nhân 3, bằng 54 đề-xi-mét vuông.",
+ "Diện tích một đáy là, 5 nhân 4, bằng 20. Diện tích toàn phần, bằng diện tích xung quanh, cộng diện tích hai đáy. 54 cộng 40, bằng 94 đề-xi-mét vuông.",
+ "Cuối cùng là thể tích. Thể tích bằng dài, nhân rộng, nhân cao. 5 nhân 4 nhân 3, bằng 60 đề-xi-mét khối."]},
+"5-toan-6":{q:"Một ô tô đi 135 ki-lô-mét hết 2 giờ 30 phút. Tính vận tốc ô tô. Với vận tốc đó, đi 189 ki-lô-mét thì hết bao lâu?",st:[
+ "Bước đầu tiên, rất quan trọng, là đổi thời gian ra giờ. 2 giờ 30 phút, bằng hai phẩy năm giờ.",
+ "Vận tốc bằng quãng đường chia cho thời gian. 135 chia hai phẩy năm, bằng 54. Vậy vận tốc là 54 ki-lô-mét một giờ.",
+ "Thời gian bằng quãng đường chia cho vận tốc. 189 chia 54, bằng ba phẩy năm giờ. Tức là, 3 giờ 30 phút."]},
+"5-toan-7":{q:"Trong hộp có 3 bi đỏ, 5 bi xanh, 2 bi vàng. Lấy ngẫu nhiên một viên. Khả năng lấy được bi xanh là bao nhiêu?",st:[
+ "Đầu tiên, ta đếm tổng số bi. 3 cộng 5 cộng 2, bằng 10 viên.",
+ "Có 5 viên bi xanh, trong tổng số 10 viên. Vậy khả năng lấy được bi xanh là 5 phần 10, rút gọn lại là một phần hai."]},
+"9-toan-0":{q:"Giải hệ phương trình. x cộng y bằng 5. Và 2x trừ y bằng 1.",st:[
+ "Các em để ý, hệ số của y là cộng 1 và trừ 1, đối nhau. Nên ta cộng vế theo vế, được 3x bằng 6. Suy ra, x bằng 2.",
+ "Thay x bằng 2 vào phương trình thứ nhất. 2 cộng y bằng 5, nên y bằng 3.",
+ "Vậy hệ có nghiệm duy nhất. x bằng 2, y bằng 3."]},
+"9-toan-1":{q:"Rút gọn biểu thức A, bằng căn 12, cộng căn 27, trừ căn 48.",st:[
+ "Ý tưởng là đưa thừa số ra ngoài dấu căn. Căn 12 bằng 2 căn 3. Căn 27 bằng 3 căn 3. Căn 48 bằng 4 căn 3.",
+ "Bây giờ, các số hạng đều chứa căn 3. Ta tính 2 cộng 3 trừ 4, bằng 1. Vậy A bằng căn 3.",
+ "Đáp số, A bằng căn 3."]},
+"9-toan-2":{q:"Rút gọn biểu thức B, gồm ba phân thức chứa căn x, với x không âm và x khác 1.",st:[
+ "Mấu chốt của bài này là nhận ra, x trừ 1, bằng căn x trừ 1, nhân với căn x cộng 1. Đó chính là mẫu thức chung.",
+ "Quy đồng, rồi gộp tử số. Các hạng tử chứa căn x triệt tiêu nhau, tử số còn lại x trừ 1. Mẫu số cũng là x trừ 1.",
+ "Tử và mẫu bằng nhau. Vậy, B bằng 1."]},
+"9-toan-3":{q:"Giải phương trình, x bình phương, trừ 5x, cộng 6, bằng 0.",st:[
+ "Ta xác định các hệ số. a bằng 1, b bằng trừ 5, c bằng 6. Tính đen-ta, bằng b bình phương trừ 4ac, bằng 25 trừ 24, bằng 1. Đen-ta dương, nên phương trình có hai nghiệm phân biệt.",
+ "Áp dụng công thức nghiệm. x một, bằng 5 cộng 1, chia 2, bằng 3. x hai, bằng 5 trừ 1, chia 2, bằng 2.",
+ "Vậy, phương trình có hai nghiệm, là 2 và 3."]},
+"9-toan-4":{q:"Phương trình x bình phương, trừ 7x, cộng 3, bằng 0, có hai nghiệm. Không giải phương trình, hãy tính tổng bình phương hai nghiệm.",st:[
+ "Trước tiên, kiểm tra đen-ta. 49 trừ 12, bằng 37, lớn hơn 0. Vậy phương trình có hai nghiệm phân biệt.",
+ "Theo định lí Vi-ét. Tổng hai nghiệm bằng 7. Tích hai nghiệm bằng 3.",
+ "Ta biến đổi. Tổng bình phương, bằng bình phương của tổng, trừ đi hai lần tích. Tức là, 49 trừ 6, bằng 43.",
+ "Đáp số, 43."]},
+"9-toan-5":{q:"Giải bất phương trình, 3x trừ 5, lớn hơn 7.",st:[
+ "Chuyển trừ 5 sang vế phải, nhớ đổi dấu. Ta được 3x lớn hơn 12. Chia hai vế cho 3, là số dương, nên giữ nguyên chiều. x lớn hơn 4.",
+ "Vậy nghiệm của bất phương trình là, x lớn hơn 4."]},
+"9-toan-6":{q:"Mảnh đất hình chữ nhật có chu vi 56 mét. Nếu tăng chiều rộng 4 mét, và giảm chiều dài 4 mét, thì diện tích tăng 8 mét vuông. Tính kích thước mảnh đất.",st:[
+ "Gọi chiều dài là x, chiều rộng là y, đơn vị mét. Nửa chu vi bằng 28, nên ta có x cộng y bằng 28.",
+ "Diện tích mới là, x trừ 4, nhân y cộng 4. Diện tích này lớn hơn diện tích cũ 8 mét vuông. Khai triển và rút gọn, ta được, x trừ y bằng 6.",
+ "Giải hệ hai phương trình. x cộng y bằng 28. x trừ y bằng 6. Ta được x bằng 17, y bằng 11. Cả hai đều thỏa mãn điều kiện.",
+ "Vậy, mảnh đất dài 17 mét, rộng 11 mét."]},
+"9-toan-7":{q:"Tam giác ABC vuông tại A. AB bằng 6, AC bằng 8 xăng-ti-mét. AH là đường cao. Tính BC, AH, và sin B.",st:[
+ "Theo định lí Py-ta-go. BC bình phương, bằng 36 cộng 64, bằng 100. Vậy BC bằng 10 xăng-ti-mét.",
+ "Dùng hệ thức, AH nhân BC, bằng AB nhân AC. Suy ra AH bằng 48 chia 10, bằng bốn phẩy tám xăng-ti-mét.",
+ "Sin B bằng cạnh đối, chia cạnh huyền. Tức là AC chia BC, bằng 8 phần 10, bằng không phẩy tám."]},
+"9-toan-8":{q:"Gieo đồng thời hai con xúc xắc. Tính xác suất để tổng số chấm bằng 7.",st:[
+ "Mỗi con xúc xắc có 6 mặt. Nên có tất cả, 6 nhân 6, bằng 36 kết quả.",
+ "Các cặp có tổng bằng 7 là, 1 và 6, 2 và 5, 3 và 4, cùng ba cặp đảo ngược. Tất cả là 6 kết quả thuận lợi.",
+ "Xác suất bằng 6 chia 36. Bằng một phần sáu."]},
+"9-toan-9":{q:"Lon nước hình trụ có bán kính đáy 3 xăng-ti-mét, chiều cao 10 xăng-ti-mét. Tính thể tích lon nước.",st:[
+ "Thể tích hình trụ, bằng pi, nhân bán kính bình phương, nhân chiều cao. 3 bình phương bằng 9, nhân 10 bằng 90. Vậy thể tích bằng 90 pi.",
+ "Lấy pi xấp xỉ ba phẩy mười bốn, thể tích khoảng hai trăm tám mươi hai phẩy sáu xăng-ti-mét khối."]},
+"9-toan-10":{q:"Từ điểm A nằm ngoài đường tròn tâm O, kẻ hai tiếp tuyến AB và AC. Chứng minh tứ giác ABOC nội tiếp.",st:[
+ "Các em nhớ tính chất quan trọng. Tiếp tuyến vuông góc với bán kính, tại tiếp điểm. Nên góc ABO bằng 90 độ.",
+ "Tương tự, góc ACO cũng bằng 90 độ.",
+ "Tứ giác ABOC có hai góc đối, cộng lại bằng 180 độ. Vậy tứ giác ABOC nội tiếp, trong đường tròn đường kính AO."]}
+};
+
 let ttsNS=null, lesson=null;
 if(window.claude?.use){ window.claude.use("tts").then(t=>{ if(!t) return; ttsNS=t;
   t.setRate?.(+$("#tRate").value).catch?.(()=>{});
@@ -650,7 +730,7 @@ function speakable(html){
    .replace(/(\d)\s:\s(\d)/g,"$1 chia $2").replace(/\s=\s/g," bằng ").replace(/=/g," bằng ").replace(/\s−\s/g," trừ ").replace(/−/g," trừ ").replace(/\s\+\s/g," cộng ")
    .replace(/≥/g," lớn hơn hoặc bằng ").replace(/≤/g," nhỏ hơn hoặc bằng ").replace(/≠/g," khác ").replace(/≈/g," xấp xỉ ").replace(/⇒/g,", suy ra ").replace(/→/g,", ")
    .replace(/\s>\s/g," lớn hơn ").replace(/\s<\s/g," nhỏ hơn ").replace(/Δ/g,"đen-ta").replace(/π/g," pi ").replace(/∠/g,"góc ").replace(/⊥/g," vuông góc với ").replace(/°/g," độ")
-   .replace(/([0-9A-Za-z)√]+)\/([0-9A-Za-z(]+)/g,"$1 phần $2").replace(/\(/g," mở ngoặc ").replace(/\)/g," đóng ngoặc ").replace(/\n+/g,". ").replace(/\s{2,}/g," ").trim().slice(0,1900);
+   .replace(/([0-9A-Za-z)√]+)\/([0-9A-Za-z(]+)/g,"$1 phần $2").replace(/\s*\(/g,", ").replace(/\)/g,",").replace(/\n+/g,". ").replace(/\s{2,}/g," ").trim().slice(0,1900);
 }
 function stepsOf(sol){
   const out=[];[...sol.children].forEach(el=>{ if(el.classList.contains("lbl")) return;
@@ -676,10 +756,9 @@ function startLesson(i){
   T.querySelector("b").textContent=lesson.mode==="voice"?"Cô giáo ảo đang giảng bài "+(i+1):"Học từng bước – bài "+(i+1);
   showStep(-1);
   if(lesson.mode==="voice"){
-    const vi=sub.id!=="tienganh";
-    const lines=[{id:"q",text:"Chào các em. Hôm nay cô cùng các em giải bài "+(i+1)+", chủ đề "+speakable(e.t)+". Đề bài như sau. "+speakable(e.q)}];
-    lesson.steps.forEach((el,k)=>{const tx=speakable(el.innerHTML); if(tx) lines.push({id:"s"+k,text:(k===0?"Bây giờ chúng ta cùng giải. ":"")+tx});});
-    lines.push({id:"s"+(lesson.steps.length-1),text:"Vậy là chúng ta đã giải xong bài này. Các em hãy gấp lời giải lại và tự làm lại một lần nhé."});
+    const vi=sub.id!=="tienganh", sc=SAY[key(state.grade,sub.id,i)];
+    const lines=[{id:"q",text:"Bài "+(i+1)+". "+(sc?sc.q:speakable(e.q))}];
+    lesson.steps.forEach((el,k)=>{const tx=sc?sc.st[k]:speakable(el.innerHTML); if(tx) lines.push({id:"s"+k,text:tx});});
     ttsNS.speak(lines.slice(0,100),{voice:"airy",...(vi?{language:"vi"}:{}),rate:+$("#tRate").value}).catch(err=>{
       if(err&&err.code==="not_granted"){ttsNS=null;toast("Trình xem này không đọc thành tiếng được. Chuyển sang học từng bước.");endLesson(false);startLesson(i);}
       else if(err&&err.code!=="stopped"){toast(err.code==="rate_limited"?"Cô giảng hơi nhiều, đợi một lát rồi thử lại nhé.":"Không phát được giọng giảng. Thử lại sau.");endLesson(false);}
