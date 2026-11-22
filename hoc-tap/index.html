@@ -24,6 +24,7 @@
   --green:#6fcf9c; --green-soft:#16302a; --amber:#e8bf5c; --amber-soft:#342b14; color-scheme:dark}
 
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
   background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
   background-size:22px 22px;}
@@ -139,6 +140,24 @@ ol.topics li::marker{color:var(--blue);font-weight:700}
 body.teaching main .wrap{padding-bottom:120px}
 @media (prefers-reduced-motion:reduce){.teach.speaking .avatar{animation:none}.sol .pending{transition:none}}
 .vid{padding:0 18px 14px}.vid video{width:100%;max-width:100%;aspect-ratio:16/9;border-radius:10px;background:#000;display:block}
+.work{margin:0 18px 14px;padding:12px 14px;border:1.5px dashed var(--blue);border-radius:12px;background:var(--blue-soft);display:grid;gap:10px}
+.work-h{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.score{font-weight:700;font-size:13px;color:var(--blue);font-variant-numeric:tabular-nums}
+.wfs{display:grid;gap:8px}
+.wf{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,220px) auto;gap:6px 10px;align-items:center}
+@media (max-width:560px){.wf{grid-template-columns:minmax(0,1fr) auto}.wf label{grid-column:1/-1}}
+.wf label,.wl{font-size:13.5px;font-weight:600}
+.inp{display:flex;align-items:center;gap:6px;min-width:0}.inp em{font-style:normal;color:var(--muted);font-size:13px;white-space:nowrap}
+.work input,.work select,.work textarea{width:100%;min-width:0;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;padding:8px 10px;font:inherit;font-size:15px}
+.work textarea{resize:vertical;font-family:var(--f-hand);font-size:19px;line-height:1.45;
+  background-image:linear-gradient(transparent 27px,var(--grid) 27px);background-size:100% 28px}
+.wf.is-ok input,.wf.is-ok select{border-color:var(--green);background:var(--green-soft)}
+.wf.is-no input,.wf.is-no select{border-color:var(--red);background:var(--red-soft)}
+.ok{color:var(--green);font-weight:700;font-size:13px;white-space:nowrap}.no{color:var(--red);font-weight:700;font-size:13px;white-space:nowrap}
+.work-a{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.saved{font-size:12px;color:var(--muted)}
+.selfask{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13.5px;font-weight:600}
+.selfnote{margin:0;font-size:13px;color:var(--muted)}
 .progress{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
 @media (prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
 </style>
@@ -566,6 +585,7 @@ function renderDetail(){
              <button class="mark" data-mark="${e.i}" aria-pressed="${!!done[key(g,s.id,e.i)]}">${done[key(g,s.id,e.i)]?"✓ Đã làm":"Đánh dấu đã làm"}</button>
            </div>
            ${VIDEOS[key(g,s.id,e.i)]?`<div class="vid" id="vid-${e.i}" hidden><video controls preload="none" playsinline src="${VIDEOS[key(g,s.id,e.i)]}"></video></div>`:""}
+           ${workHTML(g,s.id,e.i)}
            <div class="sol" id="sol-${e.i}" hidden><div class="lbl">Lời giải</div>${e.a}</div>
          </article>`).join(""):`<div class="empty">Chưa có bài ở mức độ này.</div>`}</div>
      </section>
@@ -623,6 +643,123 @@ document.addEventListener("click",ev=>{
 $("#q").addEventListener("input",e=>{state.query=e.target.value;if(state.subject){state.subject=null;history.replaceState(null,"","#lop"+state.grade)}renderGrid()});
 window.addEventListener("hashchange",fromHash);
 window.addEventListener("popstate",fromHash);
+
+/* ============================ BÀI LÀM CỦA EM ============================ */
+/* Đáp án để chấm tự động. t: num (số, chấp nhận dấu phẩy thập phân, phân số a/b), text (so sánh chữ, bỏ dấu cách/câu), set (nhiều giá trị, không cần đúng thứ tự), choice (chọn). */
+const N=(l,a,u,tol)=>({t:"num",l,a:[].concat(a),u,tol}), T=(l,a,ph)=>({t:"text",l,a:[].concat(a),ph}), S=(l,a,ph)=>({t:"set",l,a,ph}), C=(l,o,a)=>({t:"choice",l,o,a});
+const CHECK={
+"5-toan-0":[N("a) 12,5 + 7,38 =",19.88),N("b) 4,5 × 2,4 =",10.8),N("c) 9,6 : 3,2 =",3)],
+"5-toan-1":[N("Diện tích",50,"m²")],
+"5-toan-2":[N("Chu vi",31.4,"m"),N("Diện tích",78.5,"m²")],
+"5-toan-3":[N("Số HS nữ chiếm",45,"%")],
+"5-toan-4":[N("Số bé",27),N("Số lớn",45)],
+"5-toan-5":[N("Diện tích xung quanh",54,"dm²"),N("Diện tích toàn phần",94,"dm²"),N("Thể tích",60,"dm³")],
+"5-toan-6":[N("Vận tốc",54,"km/giờ"),N("Thời gian đi 189 km",3.5,"giờ")],
+"5-toan-7":[N("Khả năng lấy được bi xanh (viết phân số)",0.5)],
+"5-tiengviet-1":[C("a) đau chân",["Nghĩa gốc","Nghĩa chuyển"],"Nghĩa gốc"),C("b) chân bàn",["Nghĩa gốc","Nghĩa chuyển"],"Nghĩa chuyển"),C("c) chân núi",["Nghĩa gốc","Nghĩa chuyển"],"Nghĩa chuyển")],
+"5-tiengviet-3":[T("Ô trống 1","vì"),T("Ô trống 2","nên")],
+"5-tiengviet-4":[T("Từ “Người” thay thế cho từ nào?",["Bác Hồ","Bác"]),C("Cách liên kết",["Lặp từ ngữ","Thay thế từ ngữ","Dùng từ nối"],"Thay thế từ ngữ")],
+"5-tienganh-0":[T("Ô trống 1","in"),T("Ô trống 2","watch")],
+"5-tienganh-2":[T("go →","went"),T("swim →","swam")],
+"5-tienganh-3":[C("Chọn từ đúng",["should","shouldn't"],"shouldn't")],
+"5-khoahoc-2":[S("Các hiện tượng là biến đổi hóa học (ghi chữ cái)",["b","c"],"vd: a, d")],
+"5-lsdl-1":[T("Tuyên ngôn Độc lập (ngày/tháng/năm)",["2/9/1945","02/09/1945"]),T("Chiến thắng Điện Biên Phủ",["7/5/1954","07/05/1954"]),T("Giải phóng miền Nam",["30/4/1975","30/04/1975"])],
+"9-toan-0":[N("x =",2),N("y =",3)],
+"9-toan-1":[T("A =",["√3","căn3","can3","sqrt3","căn 3"],"vd: √3 hoặc căn 3")],
+"9-toan-2":[N("B =",1)],
+"9-toan-3":[S("Các nghiệm (cách nhau bởi dấu ;)",["2","3"],"vd: 1; 4")],
+"9-toan-4":[N("x₁² + x₂² =",43)],
+"9-toan-5":[T("Nghiệm",["x>4","x > 4"],"vd: x > 1")],
+"9-toan-6":[N("Chiều dài",17,"m"),N("Chiều rộng",11,"m")],
+"9-toan-7":[N("BC",10,"cm"),N("AH",4.8,"cm"),N("sin B",0.8)],
+"9-toan-8":[N("Xác suất (viết phân số)",1/6,"",0.002)],
+"9-toan-9":[N("Thể tích (làm tròn 1 chữ số thập phân)",[282.6,282.7],"cm³",0.06)],
+"9-nguvan-0":[C("Biện pháp tu từ",["Nhân hóa","So sánh","Ẩn dụ","Hoán dụ"],"So sánh")],
+"9-nguvan-1":[C("Quan hệ giữa các vế",["Tương phản","Nguyên nhân – kết quả","Điều kiện – kết quả","Tăng tiến"],"Nguyên nhân – kết quả")],
+"9-tienganh-0":[T("I wish …",["I wish I had more free time"])],
+"9-tienganh-1":[T("She said that …",["She said that she was tired that day","She said she was tired that day"])],
+"9-tienganh-2":[T("Câu nối",["The man who lives next door is a doctor","The man that lives next door is a doctor"])],
+"9-tienganh-3":[T("I have …",["I have lived here since 2015","I've lived here since 2015"])],
+"9-tienganh-4":[T("Ô trống",["used to climb"])],
+"9-tienganh-5":[T("If …",["If he studied hard, he could pass the exam","If he studied hard, he would pass the exam","If he studied harder, he could pass the exam","If he studied harder, he would pass the exam"])],
+"9-khtn-0":[N("Động năng",200000,"J")],
+"9-khtn-1":[N("Thế năng",100,"J")],
+"9-khtn-2":[N("Cường độ dòng điện I",1.2,"A"),N("U₁",4.8,"V"),N("U₂",7.2,"V")],
+"9-khtn-3":[N("Điện trở tương đương",2,"Ω")],
+"9-khtn-4":[N("Khoảng cách ảnh d'",15,"cm"),C("Tính chất ảnh",["Ảnh ảo, cùng chiều","Ảnh thật, ngược chiều"],"Ảnh thật, ngược chiều")],
+"9-khtn-5":[N("Thể tích H₂",[2.479,2.48],"L",0.006)],
+"9-khtn-7":[T("Tỉ lệ kiểu gene F1",["1AA:2Aa:1aa","1AA : 2Aa : 1aa"],"vd: 1AA:2Aa:1aa"),C("Tỉ lệ kiểu hình",["1 đỏ : 1 trắng","3 đỏ : 1 trắng","1 đỏ : 2 hồng : 1 trắng"],"3 đỏ : 1 trắng")],
+"9-lsdl-3":[N("Mật độ dân số (làm tròn)",346,"người/km²",1)],
+"9-tinhoc-0":[T("Công thức ở F2",['=IF(E2>=5,"Đạt","Chưa đạt")','=IF(E2>=5;"Đạt";"Chưa đạt")'],'=IF(…)')],
+"9-tinhoc-1":[T("Đếm số bạn nữ",['=COUNTIF(C2:C40,"Nữ")','=COUNTIF(C2:C40;"Nữ")']),T("Tổng sách bạn nữ",['=SUMIF(C2:C40,"Nữ",D2:D40)','=SUMIF(C2:C40;"Nữ";D2:D40)'])],
+"9-congnghe-0":[N("Điện năng tiêu thụ",6,"kWh")],
+"9-gdcd-0":[C("Loại vi phạm",["Vi phạm hình sự","Vi phạm hành chính","Vi phạm dân sự","Vi phạm kỉ luật"],"Vi phạm hành chính")]
+};
+let work=store.get("tq-work",{});
+const saveWork=()=>store.set("tq-work",work);
+const normT=x=>String(x).normalize("NFC").toLowerCase().replace(/[’‘]/g,"'").replace(/[\s.,!?'"“”]/g,"");
+function parseNum(x){
+  x=String(x).trim().replace(/\s/g,"");
+  const f=x.match(/^(-?\d+(?:[.,]\d+)?)\/(\d+(?:[.,]\d+)?)/); if(f) return parseFloat(f[1].replace(",","."))/parseFloat(f[2].replace(",","."));
+  x=x.replace(/\.(?=\d{3}(\D|$))/g,"").replace(",",".");   // 200.000 → 200000; 4,8 → 4.8
+  const m=x.match(/^-?\d+(?:\.\d+)?/); return m?parseFloat(m[0]):NaN;
+}
+function judge(f,v){
+  if(!String(v).trim()) return null;
+  if(f.t==="num"){const n=parseNum(v);return f.a.some(a=>Math.abs(n-a)<=(f.tol??1e-6))}
+  if(f.t==="text") return f.a.some(a=>normT(a)===normT(v));
+  if(f.t==="set"){const got=String(v).toLowerCase().split(/[;,\s]+/).filter(Boolean).map(x=>/\d/.test(x)?String(parseNum(x)):x).sort();
+    const want=f.a.map(x=>/\d/.test(x)?String(parseNum(x)):x.toLowerCase()).sort();return got.length===want.length&&got.every((x,i)=>x===want[i])}
+  if(f.t==="choice") return v===f.a;
+}
+function workHTML(g,sid,i){
+  const k=key(g,sid,i), fs=CHECK[k]||[], w=work[k]||{f:[],txt:"",res:[]};
+  const fields=fs.map((f,j)=>{const v=w.f[j]??"", r=w.res[j], id=`w-${i}-${j}`;
+    const st=r===true?'<span class="ok">✓ Đúng</span>':r===false?'<span class="no">✗ Chưa đúng</span>':"";
+    const inp=f.t==="choice"?`<select id="${id}" data-wf="${i}-${j}"><option value="">— Chọn —</option>${f.o.map(o=>`<option${o===v?" selected":""}>${esc(o)}</option>`).join("")}</select>`
+      :`<span class="inp"><input id="${id}" data-wf="${i}-${j}" value="${esc(v)}" autocomplete="off" ${f.t==="num"?'inputmode="decimal"':""} placeholder="${esc(f.ph||(f.t==="num"?"Nhập số":"Nhập câu trả lời"))}">${f.u?`<em>${esc(f.u)}</em>`:""}</span>`;
+    return `<div class="wf ${r===true?"is-ok":r===false?"is-no":""}"><label for="${id}">${esc(f.l)}</label>${inp}${st}</div>`}).join("");
+  const nOk=w.res.filter(x=>x===true).length;
+  return `<div class="work" id="work-${i}">
+    <div class="work-h"><span class="ex-no" style="font-size:18px">✏️ Bài làm của em</span>${fs.length&&w.res.length?`<span class="score">Đúng ${nOk}/${fs.length}</span>`:""}</div>
+    ${fs.length?`<div class="wfs">${fields}</div>`:""}
+    <label class="wl" for="wt-${i}">${fs.length?"Trình bày cách giải":"Viết bài làm của em"}</label>
+    <textarea id="wt-${i}" data-wt="${i}" rows="${fs.length?3:5}" placeholder="${fs.length?"Ghi các bước giải của em…":"Em viết câu trả lời vào đây. Bài được tự lưu trên máy này."}">${esc(w.txt||"")}</textarea>
+    <div class="work-a">
+      ${fs.length?`<button class="show" data-check="${i}">Kiểm tra</button>`:`<button class="show" data-submit="${i}">Nộp bài & so với lời giải</button>`}
+      <button class="ghost" data-clear="${i}">Làm lại</button>
+      <span class="saved" id="saved-${i}" aria-live="polite">${w.txt||w.f.some(Boolean)?"Đã lưu trên máy này":""}</span>
+    </div>
+    ${!fs.length&&w.self?`<p class="selfnote">Em tự đánh giá: <b>${w.self==="ok"?"Làm đúng":"Cần xem lại"}</b></p>`:""}
+    ${fs.length?"":`<div class="selfask" id="self-${i}" hidden>So với lời giải, em làm thế nào?
+      <button class="mark" data-self="${i}:ok">Em làm đúng</button><button class="mark" data-self="${i}:no">Em cần xem lại</button></div>`}
+  </div>`;
+}
+function curKey(i){return key(state.grade,state.subject,i)}
+function setDone(i,v){const k=curKey(i);if(v)done[k]=true;else delete done[k];store.set("tq-done",done);
+  const b=document.querySelector(`[data-mark="${i}"]`);if(b){b.setAttribute("aria-pressed",!!v);b.textContent=v?"✓ Đã làm":"Đánh dấu đã làm"}updateProgress()}
+function openSol(i){const s=$("#sol-"+i),b=document.querySelector(`[data-show="${i}"]`);s.hidden=false;b.textContent="Ẩn lời giải";b.setAttribute("aria-expanded","true")}
+function rerenderWork(i){const el=$("#work-"+i);el.outerHTML=workHTML(state.grade,state.subject,i)}
+document.addEventListener("input",ev=>{const t=ev.target;
+  if(t.dataset.wf){const [i,j]=t.dataset.wf.split("-").map(Number),k=curKey(i);work[k]=work[k]||{f:[],txt:"",res:[]};work[k].f[j]=t.value;work[k].res[j]=undefined;
+    const row=t.closest(".wf");row.classList.remove("is-ok","is-no");row.querySelector(".ok,.no")?.remove();saveWork();$("#saved-"+i).textContent="Đã lưu trên máy này"}
+  if(t.dataset.wt){const i=+t.dataset.wt,k=curKey(i);work[k]=work[k]||{f:[],txt:"",res:[]};work[k].txt=t.value;saveWork();$("#saved-"+i).textContent="Đã lưu trên máy này"}
+});
+document.addEventListener("change",ev=>{if(ev.target.matches("select[data-wf]")) ev.target.dispatchEvent(new Event("input",{bubbles:true}))});
+document.addEventListener("click",ev=>{const t=ev.target.closest("button");if(!t)return;
+  if(t.dataset.check!==undefined){const i=+t.dataset.check,k=curKey(i),fs=CHECK[k],w=work[k]=work[k]||{f:[],txt:"",res:[]};
+    if(!fs.some((_,j)=>String(w.f[j]??"").trim())){toast("Em hãy điền câu trả lời trước khi kiểm tra nhé.");return}
+    w.res=fs.map((f,j)=>judge(f,w.f[j]??""));saveWork();rerenderWork(i);
+    const ok=w.res.filter(x=>x===true).length;
+    if(ok===fs.length){setDone(i,true);toast("Giỏi lắm! Em làm đúng hết "+ok+"/"+fs.length+" ý.")}
+    else toast("Đúng "+ok+"/"+fs.length+" ý. Em xem lại ô báo đỏ rồi thử lại nhé.");return}
+  if(t.dataset.submit!==undefined){const i=+t.dataset.submit,w=work[curKey(i)];
+    if(!w||!String(w.txt||"").trim()){toast("Em hãy viết bài làm trước khi nộp nhé.");return}
+    openSol(i);$("#self-"+i).hidden=false;$("#sol-"+i).scrollIntoView({block:"nearest",behavior:"smooth"});return}
+  if(t.dataset.self){const [i,v]=t.dataset.self.split(":"),k=curKey(+i);work[k].self=v;saveWork();setDone(+i,v==="ok");rerenderWork(+i);
+    toast(v==="ok"?"Tốt lắm! Đã đánh dấu bài này là đã làm.":"Không sao, em đọc kĩ lời giải rồi làm lại nhé.");return}
+  if(t.dataset.clear!==undefined){const i=+t.dataset.clear;delete work[curKey(i)];saveWork();rerenderWork(i);return}
+});
 
 /* ============================ CÔ GIÁO ẢO ============================ */
 /* Lời giảng viết sẵn cho các bài Toán: câu nói tự nhiên, ngắt nghỉ bằng dấu phẩy, dấu chấm. Mỗi phần tử st khớp một bước lời giải. */
@@ -793,9 +930,12 @@ function buildWorkbook(g,onlyId){
     ...subs.map(s=>[+g,s.name,s.periods,s.week,s.topics.length,s.ex.length,doneCount(g,s.id),s.exam?"Có":""])],[6,32,12,10,10,12,9,11],"Môn học");
   const tp=[["Lớp","Môn học","STT","Chủ đề trọng tâm"]];subs.forEach(s=>s.topics.forEach((t,i)=>tp.push([+g,s.name,i+1,t])));
   sheet(tp,[6,28,6,80],"Chủ đề");
-  const ex=[["Lớp","Môn học","Bài","Chủ đề","Mức độ","Đề bài","Lời giải","Đã làm"]];
-  subs.forEach(s=>s.ex.forEach((e,i)=>ex.push([+g,s.name,i+1,e.t,LV[e.lv],toText(e.q),toText(e.a),done[key(g,s.id,i)]?"✓":""])));
-  sheet(ex,[6,24,6,22,12,60,90,8],"Bài tập & lời giải");
+  const ex=[["Lớp","Môn học","Bài","Chủ đề","Mức độ","Đề bài","Bài làm của em","Kết quả chấm","Lời giải","Đã làm"]];
+  subs.forEach(s=>s.ex.forEach((e,i)=>{const k=key(g,s.id,i),w=work[k],fs=CHECK[k]||[];
+    const ans=w?[...fs.map((f,j)=>w.f[j]?f.l+" "+w.f[j]+(f.u?" "+f.u:""):"").filter(Boolean),w.txt||""].filter(Boolean).join("\n"):"";
+    const res=w&&w.res&&w.res.length?"Đúng "+w.res.filter(x=>x===true).length+"/"+fs.length:(w&&w.self?(w.self==="ok"?"Tự đánh giá: đúng":"Tự đánh giá: cần xem lại"):"");
+    ex.push([+g,s.name,i+1,e.t,LV[e.lv],toText(e.q),ans,res,toText(e.a),done[k]?"✓":""])}));
+  sheet(ex,[6,24,6,22,12,60,40,16,90,8],"Bài tập & lời giải");
   return {wb,name:"TanQuan_Lop"+g+(onlyId?"_"+subs[0].name.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").replace(/Đ/g,"D").replace(/[^A-Za-z0-9]+/g,""):"_TatCaMon")+".xlsx"};
 }
 function toast(msg){const t=$("#toast");t.textContent=msg;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,3500)}
